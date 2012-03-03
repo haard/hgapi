@@ -5,10 +5,8 @@ interface instead of the internal Mercurial API. The rationale for
 this is twofold: the internal API is unstable, and it is GPL.
 
 hgapi works for Mercurial < 1.9, and will instantly reflect any
-changes to the repository, unlike interfaces based on the
-CommandServer (http://mercurial.selenic.com/wiki/CommandServer). It
-also has a really permissive license (do whatever you want, don't
-blame me).
+changes to the repository (including hgrc). It also has a really 
+permissive license (do whatever you want, don't blame me).
 
 For example of code that uses this API, take a look at
 https://bitbucket.org/haard/autohook which now uses hgapi
