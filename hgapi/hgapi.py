@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, unicode_literals, with_statement
 from subprocess import Popen, STDOUT, PIPE
+from collections import deque
 try:
     from urllib import unquote
 except: #python 3
@@ -122,7 +123,14 @@ class Repo(object):
                         userspec, *files)
 
     def hg_log(self, identifier=None, limit=None, template=None, **kwargs):
-        """Get repositiory log"""
+        """Get repositiory log. 
+        Output from this method can be processed with the Changeset class.
+        
+        example:
+        changesets = Changeset(repo.hg_log(<node_range>))
+        for entry in changeset:
+            print(entry.changeset, entry.branch, entry.tag, entry.parent, entry.user, entry.date, entry.summary)
+        """
         cmds = ["log"]
         if identifier: cmds += ['-r', str(identifier)]
         if limit: cmds += ['-l', str(limit)]
@@ -218,3 +226,89 @@ class Repo(object):
             return value.split(",")
         else:
             return value.split()
+
+
+class Changeset(object):
+    """Parses the hg log output and breaks it up into a list of entries and access to their data"""
+    all_changeset_instances = [] # permanent class var list of changeset instances 
+    queue = [] # temp list for iteration
+    processing_log = False
+
+    def __init__(self, log=None):
+        """Takes hg_log() output as parameter and processes the logs into a list of instances for each entry
+        to be iterated through.
+
+        example:
+        changesets = Changeset(repo.hg_log(<node_range>))
+        for entry in changeset:
+            print(entry.changeset, entry.branch, entry.tag, entry.parent, entry.user, entry.date, entry.summary)
+        """
+
+        if not log and not self.__class__.processing_log:
+            raise TypeError(' __init__() requires log output as parameter')
+
+        self.changeset = 'Undefined'
+        self.branch = None
+        self.tag = None
+        self.parent = None
+        self.user = None
+        self.date = None
+        self.summary = None
+
+        if log:
+            self = Changeset.process_log(log)
+
+    def __len__(self):
+        return len(self.__class__.all_changeset_instances)
+
+    def __nonzero__(self):
+        return len(self.__class__.all_changeset_instances)
+
+    def __iter__(self):
+        if not self.__class__.queue:
+            # if queue is empty, reset it to start the iteration fresh
+            self.__class__.queue = deque(self.__class__.all_changeset_instances)
+        return self
+
+    def next(self):
+        """returns the next changeset instance on the stack"""
+        if self.__class__.queue:
+           return self.__class__.queue.popleft()
+        else:
+           raise StopIteration
+
+    @classmethod
+    def process_log(cls, log):
+        """Processes the log output from Repo.hg_log, and creates an internal stack of instances of type Changeset. 
+           To be iterated through by the user. Returns first on stack to be used as the return instance for the caller.
+        """
+        first_instance = None
+        cls.processing_log = True
+
+        for block in log.split("\n\n"):
+            block = block + "\n"
+            regexp = re.compile(r"changeset:\s+(?P<changeset>[\d]+:[\da-zA-Z]+)\n"
+                                r"(branch:\s+(?P<branch>[a-zA-z\d]+)\n)?"
+                                r"(tag:\s+(?P<tag>[a-zA-z\d]+)\n)?"
+                                r"(parent:\s+(?P<parent>[\d]+:[\da-zA-Z]+)\n)?"
+                                r"user:\s+(?P<user>[\da-zA-Z]+)\n"
+                                r"date:\s+(?P<date>[\s\S]+)\n"
+                                r"summary:\s+(?P<summary>[\s\S]+)\n"
+                               )
+            result = regexp.search(block)
+            if result:
+                instance = Changeset()
+                instance.changeset = result.group('changeset')
+                instance.branch = result.group('branch')
+                instance.tag = result.group('tag')
+                instance.parent = result.group('parent')
+                instance.user = result.group('user')
+                instance.date = result.group('date')
+                instance.summary = result.group('summary')
+                if not first_instance:
+                    first_instance = instance
+                cls.all_changeset_instances.append(instance)
+
+        cls.processing_log = False
+        return first_instance
+
