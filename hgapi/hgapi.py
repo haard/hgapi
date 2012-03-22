@@ -34,6 +34,9 @@ class Revision(object):
         else:
             self.parents = [int(p.split(':')[0]) for p in self.parents.split()]
 
+    def __iter__(self):
+        return self
+
     def __eq__(self, other):
         """Returns true if self.node == other.node"""
         return self.node == other.node
@@ -45,10 +48,29 @@ class Repo(object):
         self.path = path
         self.cfg = False
         self.user = user
+        self.all_changesets = []
+        self.all_changesets_index = 0
 
-    def __getitem__(self, rev):
-        """Get a Revision object for the revision identifed by rev"""
+    def __getitem__(self, rev=None):
+        """Get a Revision object for the revision identifed by rev
+           rev can be a range (6c31a9f7be7ac58686f0610dd3c4ba375db2472c:tip)
+           a single changeset id
+           or it can be left blank to indicate the entire history
+        """
+        if rev == None:
+            rev = '0:tip'
+        print(rev)
         return self.revision(rev)
+
+    def next(self):
+        """returns the next revision object on the stack"""
+        self.all_changesets_index += 1
+        if self.all_changesets[self.all_changesets_index]:
+           return self.all_changesets[self.all_changesets_index]
+        else:
+           self.all_changesets_index = -1
+           raise StopIteration
+
 
     def hg_command(self, *args):
         """Run a hg command in path and return the result.
@@ -169,14 +191,17 @@ class Repo(object):
             changes.setdefault(change, []).append(path)
         return changes
         
-    rev_log_tpl = '\{"node":"{node|short}","rev":"{rev}","author":"{author|urlescape}","branch":"{branch}", "parents":"{parents}","date":"{date|isodate}","tags":"{tags}","desc":"{desc|urlescape}"}'        
+    rev_log_tpl = '{"node":"{node|short}","rev":"{rev}","author":"{author|urlescape}","branch":"{branches}", "parents":"{parents}","date":"{date|isodate}","tags":"{tags}","desc":"{desc|urlescape}"}\n'
 
     def revision(self, identifier):
         """Get the identified revision as a Revision object"""
         out = self.hg_log(identifier=str(identifier), 
                           template=self.rev_log_tpl)
-        
-        return Revision(out)
+       
+        for entry in out.split('\n')[:-1]:
+            self.all_changesets.append(Revision(entry))
+
+        return self.all_changesets
 
     def read_config(self):
         """Read the configuration as seen with 'hg showconfig'
@@ -226,89 +251,4 @@ class Repo(object):
             return value.split(",")
         else:
             return value.split()
-
-
-class Changeset(object):
-    """Parses the hg log output and breaks it up into a list of entries and access to their data"""
-    all_changeset_instances = [] # permanent class var list of changeset instances 
-    queue = [] # temp list for iteration
-    processing_log = False
-
-    def __init__(self, log=None):
-        """Takes hg_log() output as parameter and processes the logs into a list of instances for each entry
-        to be iterated through.
-
-        example:
-        changesets = Changeset(repo.hg_log(<node_range>))
-        for entry in changeset:
-            print(entry.changeset, entry.branch, entry.tag, entry.parent, entry.user, entry.date, entry.summary)
-        """
-
-        if not log and not self.__class__.processing_log:
-            raise TypeError(' __init__() requires log output as parameter')
-
-        self.changeset = 'Undefined'
-        self.branch = None
-        self.tag = None
-        self.parent = None
-        self.user = None
-        self.date = None
-        self.summary = None
-
-        if log:
-            self = Changeset.process_log(log)
-
-    def __len__(self):
-        return len(self.__class__.all_changeset_instances)
-
-    def __nonzero__(self):
-        return len(self.__class__.all_changeset_instances)
-
-    def __iter__(self):
-        if not self.__class__.queue:
-            # if queue is empty, reset it to start the iteration fresh
-            self.__class__.queue = deque(self.__class__.all_changeset_instances)
-        return self
-
-    def next(self):
-        """returns the next changeset instance on the stack"""
-        if self.__class__.queue:
-           return self.__class__.queue.popleft()
-        else:
-           raise StopIteration
-
-    @classmethod
-    def process_log(cls, log):
-        """Processes the log output from Repo.hg_log, and creates an internal stack of instances of type Changeset. 
-           To be iterated through by the user. Returns first on stack to be used as the return instance for the caller.
-        """
-        first_instance = None
-        cls.processing_log = True
-
-        for block in log.split("\n\n"):
-            block = block + "\n"
-            regexp = re.compile(r"changeset:\s+(?P<changeset>[\d]+:[\da-zA-Z]+)\n"
-                                r"(branch:\s+(?P<branch>[a-zA-z\d]+)\n)?"
-                                r"(tag:\s+(?P<tag>[a-zA-z\d]+)\n)?"
-                                r"(parent:\s+(?P<parent>[\d]+:[\da-zA-Z]+)\n)?"
-                                r"user:\s+(?P<user>[\da-zA-Z]+)\n"
-                                r"date:\s+(?P<date>[\s\S]+)\n"
-                                r"summary:\s+(?P<summary>[\s\S]+)\n"
-                               )
-            result = regexp.search(block)
-            if result:
-                instance = Changeset()
-                instance.changeset = result.group('changeset')
-                instance.branch = result.group('branch')
-                instance.tag = result.group('tag')
-                instance.parent = result.group('parent')
-                instance.user = result.group('user')
-                instance.date = result.group('date')
-                instance.summary = result.group('summary')
-                if not first_instance:
-                    first_instance = instance
-                cls.all_changeset_instances.append(instance)
-
-        cls.processing_log = False
-        return first_instance
 
