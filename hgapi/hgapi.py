@@ -48,8 +48,8 @@ class Repo(object):
         self.path = path
         self.cfg = False
         self.user = user
-        self.all_changesets = []
-        self.all_changesets_index = 0
+        self.all_revs = []
+        self.all_revs_idx = 0
 
     def __getitem__(self, rev=None):
         """Get a Revision object for the revision identifed by rev
@@ -59,18 +59,16 @@ class Repo(object):
         """
         if rev == None:
             rev = '0:tip'
-        print(rev)
         return self.revision(rev)
 
     def next(self):
         """returns the next revision object on the stack"""
-        self.all_changesets_index += 1
-        if self.all_changesets[self.all_changesets_index]:
-           return self.all_changesets[self.all_changesets_index]
+        self.all_revs_idx += 1
+        if self.all_revs[self.all_revs_idx]:
+           return self.all_revs[self.all_revs_idx]
         else:
-           self.all_changesets_index = -1
+           self.all_revs_idx = -1
            raise StopIteration
-
 
     def hg_command(self, *args):
         """Run a hg command in path and return the result.
@@ -199,9 +197,9 @@ class Repo(object):
                           template=self.rev_log_tpl)
        
         for entry in out.split('\n')[:-1]:
-            self.all_changesets.append(Revision(entry))
+            self.all_revs.append(Revision(entry))
 
-        return self.all_changesets
+        return self.all_revs
 
     def read_config(self):
         """Read the configuration as seen with 'hg showconfig'
@@ -216,7 +214,6 @@ class Repo(object):
             sect_cfg[sub] = value.strip()
         self.cfg = cfg
         return cfg
-
 
     def config(self, section, key):
         """Return the value of a configuration variable"""
