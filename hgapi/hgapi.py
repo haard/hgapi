@@ -28,6 +28,7 @@ class Revision(object):
         for key in rev.keys():
             self.__setattr__(key, unquote(rev[key]))
         self.rev = int(self.rev)
+        if not self.branch: self.branch='default'
         if not self.parents:
             self.parents = [int(self.rev)-1]
         else:
@@ -47,9 +48,7 @@ class Repo(object):
         self.path = path
         self.cfg = False
         self.user = user
-        self.all_revs = []
-        self.all_revs_idx = 0
-
+ 
     def __getitem__(self, rev=None):
         """Get a Revision object for the revision identifed by rev
            rev can be a range (6c31a9f7be7ac58686f0610dd3c4ba375db2472c:tip)
@@ -57,17 +56,8 @@ class Repo(object):
            or it can be left blank to indicate the entire history
         """
         if rev == None:
-            rev = '0:tip'
+            rev = slice(0, 'tip') #'0:tip'
         return self.revision(rev)
-
-    def next(self):
-        """returns the next revision object on the stack"""
-        self.all_revs_idx += 1
-        if self.all_revs[self.all_revs_idx]:
-           return self.all_revs[self.all_revs_idx]
-        else:
-           self.all_revs_idx = -1
-           raise StopIteration
 
     def hg_command(self, *args):
         """Run a hg command in path and return the result.
@@ -199,11 +189,12 @@ class Repo(object):
         out = self.hg_log(identifier=str(identifier), 
                           template=self.rev_log_tpl)
        
+        revs = []
         for entry in out.split('\n')[:-1]:
-            print (entry)
-            self.all_revs.append(Revision(entry))
-
-        return self.all_revs
+            revs.append(Revision(entry))
+        if isinstance(identifier, slice):
+            return revs
+        return revs[0] 
 
     def read_config(self):
         """Read the configuration as seen with 'hg showconfig'
