@@ -138,8 +138,12 @@ class Repo(object):
         """Commit changes to the repository."""
         userspec = "-u" + user if user else "-u" + self.user if self.user else ""
         close = "--close-branch" if close_branch else ""
-        self.hg_command("commit", "-m", message, close, 
-                        userspec, *files)
+        args = [close, userspec] + files
+        # don't send a "" arg for userspec or close, which HG will
+        # consider the files arg, committing all files instead of what
+        # was passed in files kwarg
+        args = [arg for arg in args if arg]
+        self.hg_command("commit", "-m", message, *args)
 
     def hg_log(self, identifier=None, limit=None, template=None, **kwargs):
         """Get repositiory log. 

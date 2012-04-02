@@ -217,6 +217,15 @@ class TestHgAPI(unittest.TestCase):
         heads = self.repo.hg_heads()
         self.assertEquals(len(heads), 1)
 
+    def test_160_CommitFiles(self):
+        with open("test/file2.txt", "w") as out:
+            out.write("newstuff")
+        with open("test/file3.txt", "w") as out:
+            out.write("this is even more stuff")
+        self.repo.hg_commit("only committing file2.txt", user="test", files=["file2.txt"])
+        self.assertTrue("file3.txt" in self.repo.hg_status()["M"])
+
+
 def test_doc():
     #Prepare for doctest
     os.mkdir("./test_hgapi")
