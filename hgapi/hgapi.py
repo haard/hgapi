@@ -56,7 +56,6 @@ class Repo(object):
            or it can be left blank to indicate the entire history
         """
         if isinstance(rev, slice):
-        
             return self.revisions(rev)
         return self.revision(rev)
 

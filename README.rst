@@ -38,8 +38,9 @@ Example usage::
     >>> repo.hg_commit("Adding file.txt", user="me")
     >>> str(repo['tip'].desc)
     'Adding file.txt'
+    >>> len(repo[0:'tip'])
+    1
     
-
 Installation
 ============
 
