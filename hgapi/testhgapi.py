@@ -219,12 +219,31 @@ class TestHgAPI(unittest.TestCase):
 
     def test_160_CommitFiles(self):
         with open("test/file2.txt", "w") as out:
-            out.write("newstuff")
+                    out.write("newstuff")        	
         with open("test/file3.txt", "w") as out:
             out.write("this is even more stuff")
         self.repo.hg_commit("only committing file2.txt", user="test", files=["file2.txt"])
         self.assertTrue("file3.txt" in self.repo.hg_status()["M"])
-
+        
+    def test_170_Indexing(self):
+        with open("test/file2.txt", "a+") as out:
+            out.write("newstuff")
+        self.repo.hg_commit("indexing", user="test", files=["file2.txt"])
+        #Compare tip and current revision number
+        self.assertEquals(self.repo['tip'], self.repo[self.repo.hg_rev()])
+        self.assertEquals(self.repo['tip'].desc, "indexing")
+        
+    def test_180_Slicing(self):
+        with open("test/file2.txt", "a+") as out:
+            out.write("newstuff")
+        self.repo.hg_commit("indexing", user="test", files=["file2.txt"])
+        
+        all_revs = self.repo[0:'tip']
+        self.assertEquals(len(all_revs), 12)
+        self.assertEquals(all_revs[-1].desc, all_revs[-2].desc)
+        self.assertNotEquals(all_revs[-2].desc, all_revs[-3].desc)
+        
+        
 
 def test_doc():
     #Prepare for doctest

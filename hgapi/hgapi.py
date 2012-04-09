@@ -49,14 +49,15 @@ class Repo(object):
         self.cfg = False
         self.user = user
  
-    def __getitem__(self, rev=None):
+    def __getitem__(self, rev=slice(0, 'tip')):
         """Get a Revision object for the revision identifed by rev
            rev can be a range (6c31a9f7be7ac58686f0610dd3c4ba375db2472c:tip)
            a single changeset id
            or it can be left blank to indicate the entire history
         """
-        if rev == None:
-            rev = slice(0, 'tip') #'0:tip'
+        if isinstance(rev, slice):
+        
+            return self.revisions(rev)
         return self.revision(rev)
 
     def hg_command(self, *args):
@@ -186,16 +187,23 @@ class Repo(object):
 
     def revision(self, identifier):
         """Get the identified revision as a Revision object"""
+
         out = self.hg_log(identifier=str(identifier), 
-                          template=self.rev_log_tpl)
-       
+                                     template=self.rev_log_tpl)
+                
+        return Revision(out)   
+
+    def revisions(self, slice_):
+        """Retruns a list of Revision objects for the given slice"""
+        out = self.hg_log(identifier=":".join([str(x)for x in (slice_.start, slice_.stop)]), 
+                                             template=self.rev_log_tpl)
+                        
         revs = []
         for entry in out.split('\n')[:-1]:
             revs.append(Revision(entry))
-        if isinstance(identifier, slice):
-            return revs
-        return revs[0] 
 
+        return revs      
+    
     def read_config(self):
         """Read the configuration as seen with 'hg showconfig'
         Is called by __init__ - only needs to be called explicitly

@@ -27,7 +27,8 @@ So far, the API supports::
  hg revert
 
 You also have access to the configuration (config, configbool,
-configlist) just as in the internal Mercurial API.
+configlist) just as in the internal Mercurial API. The repository 
+supports slicing and indexing notation.
 
 Example usage::
     >>> import hgapi
@@ -37,6 +38,7 @@ Example usage::
     >>> repo.hg_commit("Adding file.txt", user="me")
     >>> str(repo['tip'].desc)
     'Adding file.txt'
+    
 
 Installation
 ============
