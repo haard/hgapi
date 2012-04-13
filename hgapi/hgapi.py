@@ -136,14 +136,7 @@ class Repo(object):
         self.hg_command("commit", "-m", message, *args)
 
     def hg_log(self, identifier=None, limit=None, template=None, **kwargs):
-        """Get repositiory log. 
-        Output from this method can be processed with the Changeset class.
-        
-        example:
-        changesets = Changeset(repo.hg_log(<node_range>))
-        for entry in changeset:
-            print(entry.changeset, entry.branch, entry.tag, entry.parent, entry.user, entry.date, entry.summary)
-        """
+        """Get repositiory log."""
         cmds = ["log"]
         if identifier: cmds += ['-r', str(identifier)]
         if limit: cmds += ['-l', str(limit)]

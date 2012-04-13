@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name = "hgapi",
-    version = "1.2.0rc1",
+    version = "1.2.0",
     packages = ['hgapi'],
     test_suite = "hgapi.testhgapi.TestHgAPI",
     author = "Fredrik Håård",
@@ -12,7 +12,19 @@ setup(
     description = "Python API to Mercurial using the command-line interface",
     license = "Do whatever you want, don't blame me",
     keywords = "mercurial api",
-    url = "https://bitbucket.org/haard/hgapi",   # project home page, if any
+    url = "https://bitbucket.org/haard/hgapi",
+    classifiers = """Development Status :: 4 - Beta
+Intended Audience :: Developers
+License :: Freely Distributable
+License :: OSI Approved :: BSD License
+License :: OSI Approved :: MIT License
+Operating System :: OS Independent
+Programming Language :: Python :: 2
+Programming Language :: Python :: 2.7
+Programming Language :: Python :: 3
+Programming Language :: Python :: 3.2
+Topic :: Software Development :: Libraries
+Topic :: Software Development :: Version Control""".split('\n'),
     long_description = """
 hgapi is a pure-Python API to Mercurial, that uses the command-line
 interface instead of the internal Mercurial API. The rationale for
