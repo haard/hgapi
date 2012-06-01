@@ -152,7 +152,46 @@ class Repo(object):
             for key in kwargs:
                 cmds += [key, kwargs[key]]
         return self.hg_command(*cmds)
-        
+
+    def hg_branch(self, branch_name=None):
+        """ Creates a branch of branch_name isn't None
+            If not, returns the current branch name.
+        """
+        args = []
+        if branch_name:
+            args.append(branch_name)
+        branch = self.hg_command("branch", *args)
+        return branch.strip()
+
+    def get_branches(self):
+        """ Returns a list of branches from the repo, including versions """
+        branches = self.hg_command("branches")
+        branch_list = branches.strip().split("\n")
+        values = []
+        for branch in branch_list:
+            b = branch.partition(" ")
+            if not b:
+                continue
+            name = b[0].strip()
+            version = b[-1].strip()
+            values.append({'name':name, 'version':version})
+        return values
+
+    def get_branch_names(self):
+        """ Returns a list of branch names from the repo. """
+        branches = self.hg_command("branches")
+        branch_list = branches.strip().split("\n")
+        values = []
+        for branch in branch_list:
+            b = branch.partition(" ")
+            if not b:
+                continue
+            name = b[0]
+            if name:
+                name = name.strip()
+                values.append(name)
+        return values
+
     def hg_status(self, empty=False):
         """Get repository status.
         Returns a dict containing a *change char* -> *file list* mapping, where 

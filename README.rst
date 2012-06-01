@@ -25,6 +25,8 @@ So far, the API supports::
  hg status
  hg merge (fails on conflict)
  hg revert
+ hg branch
+ hg branches
 
 You also have access to the configuration (config, configbool,
 configlist) just as in the internal Mercurial API. The repository 

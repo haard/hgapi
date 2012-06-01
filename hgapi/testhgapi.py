@@ -243,7 +243,33 @@ class TestHgAPI(unittest.TestCase):
         self.assertEquals(all_revs[-1].desc, all_revs[-2].desc)
         self.assertNotEquals(all_revs[-2].desc, all_revs[-3].desc)
         
-        
+    def test_190_Branches(self):
+        # make sure there is only one branch and it is default
+        self.assertEquals(self.repo.hg_branch(), "default")
+        branches = self.repo.get_branches()
+        self.assertEquals(len(branches), 1)
+        branch_names = self.repo.get_branch_names()
+        self.assertEquals(len(branch_names), 1)
+        self.assertEquals(branch_names[0], "default")
+
+        # create a new branch, should still be default in branches until we commit
+        # but branch should return the new branch
+        self.assertEquals(self.repo.hg_branch('test_branch'),
+            "marked working directory as branch test_branch")
+        self.assertEquals(self.repo.hg_branch(), "test_branch")
+        branches = self.repo.get_branches()
+        self.assertEquals(len(branches), 1)
+        branch_names = self.repo.get_branch_names()
+        self.assertEquals(len(branch_names), 1)
+        self.assertEquals(branch_names[0], "default")
+
+        # now commit. branch and branches should change to test_branch
+        self.repo.hg_commit("commit test_branch")
+        self.assertEquals(self.repo.hg_branch(), "test_branch")
+        branches = self.repo.get_branches()
+        self.assertEquals(len(branches), 2)
+        branch_names = self.repo.get_branch_names()
+        self.assertEquals(len(branch_names), 2)
 
 def test_doc():
     #Prepare for doctest
