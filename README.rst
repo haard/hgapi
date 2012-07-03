@@ -4,7 +4,7 @@ hgapi is a pure-Python API to Mercurial, that uses the command-line
 interface instead of the internal Mercurial API. The rationale for
 this is twofold: the internal API is unstable, and it is GPL.
 
-hgapi works for Mercurial < 1.9, and will instantly reflect any
+hgapi works for all versions of Mercurial, and will instantly reflect any
 changes to the repository (including hgrc). It also has a really 
 permissive license (do whatever you want, don't blame me).
 
