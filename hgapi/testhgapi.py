@@ -271,6 +271,21 @@ class TestHgAPI(unittest.TestCase):
         branch_names = self.repo.get_branch_names()
         self.assertEquals(len(branch_names), 2)
 
+    def test_200_CommitWithDates(self):
+        rev0 = self.repo.hg_rev()
+
+        with open("test/file.txt", "w+") as out:
+            out.write("even more stuff")
+
+        self.repo.hg_commit("modifying and setting a date", user="test", date="10/10/11 UTC")
+
+        rev = self.repo["tip"]
+        self.assertEquals(rev.desc, "modifying and setting a date")
+        self.assertEquals(rev.author, "test")
+        self.assertEquals(rev.branch, "test_branch")
+        self.assertEquals(rev.date, "2011-10-10 00:00 +0000")
+        self.assertEquals(rev.parents, [rev0])
+
 def test_doc():
     #Prepare for doctest
     os.mkdir("./test_hgapi")
