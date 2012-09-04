@@ -27,6 +27,8 @@ So far, the API supports::
  hg revert
  hg branch
  hg branches
+ hg tag
+ hg tags
 
 You also have access to the configuration (config, configbool,
 configlist) just as in the internal Mercurial API. The repository 

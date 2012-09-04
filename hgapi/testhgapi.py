@@ -286,6 +286,16 @@ class TestHgAPI(unittest.TestCase):
         self.assertEquals(rev.date, "2011-10-10 00:00 +0000")
         self.assertEquals(rev.parents, [rev0])
 
+    def test_210_Tags(self):
+        original_tip = self.repo['tip'].node
+        self.repo.hg_tag('mytag')
+        self.repo.hg_tag('mytag2', rev=1)
+        tags = self.repo.hg_tags()
+        self.assertEqual(tags, {'mytag': original_tip,
+            'mytag2': self.repo[1].node,
+            'tip': self.repo[-1].node})
+
+
 def test_doc():
     #Prepare for doctest
     os.mkdir("./test_hgapi")

@@ -101,6 +101,23 @@ class Repo(object):
         if clean: cmd.append("--clean")
         self.hg_command(*cmd)
 
+    def hg_tag(self, name, rev=None):
+        """Add a tag to the current or given revision"""
+        cmd = ['tag', name]
+        if rev: cmd += ['-r', str(rev)]
+        self.hg_command(*cmd)
+
+    def hg_tags(self):
+        """Get all tags from the repo as 
+        a dict containing tag: shortnode mapping"""
+        cmd = ['tags']
+        output = self.hg_command(*cmd)
+        res = {}
+        for row in output.strip().split('\n'):
+            tag, changeset = row.split() # tip  5:aaaaaaaaaa
+            res[tag] = changeset.split(':')[1]
+        return res
+
     def hg_heads(self):
         """Gets a list with the node id:s of all open heads"""
         res = self.hg_command("heads","--template", "{node}\n")
