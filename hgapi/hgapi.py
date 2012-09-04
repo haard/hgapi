@@ -118,9 +118,11 @@ class Repo(object):
             res[tag] = changeset.split(':')[1]
         return res
 
-    def hg_heads(self):
-        """Gets a list with the node id:s of all open heads"""
-        res = self.hg_command("heads","--template", "{node}\n")
+    def hg_heads(self, short=False):
+        """Gets a list with the node id:s of all open heads.
+        If short is given and is not False, return the short form of the node id"""
+        template = "{node}\n" if not short else "{node|short}\n"
+        res = self.hg_command("heads","--template", template)
         return [head for head in res.split("\n") if head]
 
     def hg_merge(self, reference):

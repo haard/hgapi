@@ -89,6 +89,11 @@ class TestHgAPI(unittest.TestCase):
         self.assertTrue(node in heads)
         self.assertTrue(self.repo.hg_node() in heads)
 
+        heads = self.repo.hg_heads(short=True)
+        self.assertEquals(len(heads), 2)
+        self.assertTrue(node[:12] in heads)
+        self.assertTrue(self.repo.hg_node()[:12] in heads)
+
         #Close head again
         self.repo.hg_commit("Closing branch", close_branch=True)
         self.repo.hg_update(node)
@@ -254,8 +259,8 @@ class TestHgAPI(unittest.TestCase):
 
         # create a new branch, should still be default in branches until we commit
         # but branch should return the new branch
-        self.assertEquals(self.repo.hg_branch('test_branch'),
-            "marked working directory as branch test_branch")
+        self.assertTrue(self.repo.hg_branch('test_branch').startswith(
+            "marked working directory as branch test_branch"))
         self.assertEquals(self.repo.hg_branch(), "test_branch")
         branches = self.repo.get_branches()
         self.assertEquals(len(branches), 1)
