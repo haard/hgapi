@@ -155,10 +155,11 @@ class Repo(object):
         args = [arg for arg in args if arg]
         self.hg_command("commit", "-m", message, *args)
 
-    def hg_log(self, identifier=None, limit=None, template=None, **kwargs):
+    def hg_log(self, identifier=None, limit=None, template=None, branch=None, **kwargs):
         """Get repositiory log."""
         cmds = ["log"]
         if identifier: cmds += ['-r', str(identifier)]
+        if branch: cmds += ['-b', str(branch)]
         if limit: cmds += ['-l', str(limit)]
         if template: cmds += ['--template', str(template)]
         if kwargs:

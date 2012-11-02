@@ -300,6 +300,12 @@ class TestHgAPI(unittest.TestCase):
             'mytag2': self.repo[1].node,
             'tip': self.repo[-1].node})
 
+    def test_220_LogWithBranch(self):
+        default = self.repo.hg_log(branch='default')
+        branch = self.repo.hg_log(branch='test_branch')
+
+        self.assertTrue("commit test_branch" in branch)
+        self.assertFalse("commit test_branch" in default)
 
 def test_doc():
     #Prepare for doctest
