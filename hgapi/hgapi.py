@@ -96,7 +96,7 @@ class Repo(object):
         self.hg_command("remove", filepath)
 
     def hg_update(self, reference, clean=False):
-        """Update to the revision indetified by reference"""
+        """Update to the revision identified by reference"""
         cmd = ["update", str(reference)]
         if clean: cmd.append("--clean")
         self.hg_command(*cmd)
@@ -125,13 +125,22 @@ class Repo(object):
         res = self.hg_command("heads","--template", template)
         return [head for head in res.split("\n") if head]
 
-    def hg_merge(self, reference):
-        """Merge reference to current"""
-        self.hg_command("merge", reference)
+    def hg_merge(self, reference, preview=False):
+        """Merge reference to current, or with 'preview' set to True get a list 
+        of revision numbers containing all revisions that would have been merged"""
+        if not preview:
+            return self.hg_command("merge", reference)
+        else:
+            revno_re = re.compile('^changeset: (\d+):\w+$')
+            out = self.hg_command("merge", "-P", reference)
+            revs = []
+            for row in out:
+                match = revno_re.match(row)
+                if match: revs.append(match.group(1)) 
+            return rev
         
     def hg_revert(self, all=False, *files):
-        """Revert repository"""
-        
+        """Revert repository"""        
         if all:
             cmd = ["revert", "--all"]
         else:
@@ -206,7 +215,7 @@ class Repo(object):
                 values.append(name)
         return values
 
-    def hg_status(self, empty=False):
+    def hg_status(self, empty=False, clean=False):
         """Get repository status.
         Returns a dict containing a *change char* -> *file list* mapping, where 
         change char is in::
@@ -221,12 +230,16 @@ class Repo(object):
         If empty is set to non-False value, don't add empty lists
         """
         cmds = ['status']
+        if clean: cmds.append('-A')        
         out = self.hg_command(*cmds).strip()
         #default empty set
         if empty:
             changes = {}
         else:
             changes = {'A': [], 'M': [], '!': [], '?': [], 'R': []}
+            if clean:
+                changes['C'] = []
+
         if not out: return changes
         lines = out.split("\n")
         status_split = re.compile("^(.) (.*)$")
