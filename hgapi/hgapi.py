@@ -7,6 +7,7 @@ except: #python 3
     from urllib.parse import unquote
 import re
 import os.path
+import os
 try:
     import json #for reading logs
 except:
@@ -48,6 +49,8 @@ class Repo(object):
         self.path = path
         self.cfg = False
         self.user = user
+        self._env = os.environ
+        self._env['LANG'] = 'en_US'
  
     def __getitem__(self, rev=slice(0, 'tip')):
         """Get a Revision object for the revision identifed by rev
@@ -62,7 +65,7 @@ class Repo(object):
     def hg_command(self, *args):
         """Run a hg command in path and return the result.
         Throws on error."""    
-        proc = Popen(["hg", "--cwd", self.path, "--encoding", "UTF-8"] + list(args), stdout=PIPE, stderr=PIPE)
+        proc = Popen(["hg", "--cwd", self.path, "--encoding", "UTF-8"] + list(args), stdout=PIPE, stderr=PIPE, env=self._env)
 
         out, err = [x.decode("utf-8") for x in  proc.communicate()]
 
