@@ -293,10 +293,11 @@ class TestHgAPI(unittest.TestCase):
 
     def test_210_Tags(self):
         original_tip = self.repo['tip'].node
-        self.repo.hg_tag('mytag')
+        self.repo.hg_tag('mytag', 'othertag')
         self.repo.hg_tag('mytag2', rev=1)
         tags = self.repo.hg_tags()
         self.assertEqual(tags, {'mytag': original_tip,
+            'othertag': original_tip,
             'mytag2': self.repo[1].node,
             'tip': self.repo[-1].node})
 

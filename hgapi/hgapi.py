@@ -104,9 +104,13 @@ class Repo(object):
         if clean: cmd.append("--clean")
         self.hg_command(*cmd)
 
-    def hg_tag(self, name, rev=None):
-        """Add a tag to the current or given revision"""
-        cmd = ['tag', name]
+    def hg_tag(self, *tags, **kwargs):
+        """Add one or more tags to the current revision, or revision given by
+        passing 'rev' as a keyword argument::
+          
+          >>> repo.hg_tag('mytag', rev=3)"""
+        rev = kwargs.get('rev')
+        cmd = ['tag'] + list(tags)
         if rev: cmd += ['-r', str(rev)]
         self.hg_command(*cmd)
 
