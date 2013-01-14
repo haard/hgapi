@@ -29,6 +29,7 @@ So far, the API supports::
  hg branches
  hg tag
  hg tags
+ hg diff
 
 You also have access to the configuration (config, configbool,
 configlist) just as in the internal Mercurial API. The repository 

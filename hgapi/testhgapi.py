@@ -308,6 +308,17 @@ class TestHgAPI(unittest.TestCase):
         self.assertTrue("commit test_branch" in branch)
         self.assertFalse("commit test_branch" in default)
 
+    def test_230_BasicDiff(self):
+        diffs = self.repo.hg_diff('default', 'test_branch')
+        self.assertTrue('.hgtags' in [diff['filename'] for diff in diffs])
+        self.assertTrue('+even more stuff' in diffs[1]['diff'])
+
+    def test_240_DiffFile(self):
+        diffs = self.repo.hg_diff('default', 'test_branch', filenames=['file.txt'])
+        self.assertEquals(len(diffs), 1)
+        self.assertEquals(diffs[0]['filename'], 'file.txt')
+        self.assertTrue('+even more stuff' in diffs[0]['diff'])
+
 def test_doc():
     #Prepare for doctest
     os.mkdir("./test_hgapi")
@@ -326,4 +337,3 @@ if __name__ == "__main__":
         test_doc()
     finally:
         unittest.main()
-    

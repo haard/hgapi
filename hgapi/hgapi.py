@@ -222,6 +222,31 @@ class Repo(object):
                 values.append(name)
         return values
 
+    def hg_diff(self, rev_a=None, rev_b=None, filenames=None):
+        """Get a unified diff as returned by 'hg diff'
+        rev_a and rev_b are passed as -r <rev> arguments to the call,
+        and filenames are expected to be an iterable of file names.
+        """
+
+        cmds = ['diff']
+        for rev in (rev_a, rev_b):
+            if not rev is None:
+                cmds += ['-r', rev]
+
+        if not filenames is None:
+            cmds += list(filenames)
+
+        result =  self.hg_command(*cmds)
+        diffs = []
+        filere = re.compile("^diff .* (\S+)$")
+        for line in result.split('\n'):
+           
+            match = filere.match(line)
+            if match:
+                diffs.append({'filename': match.groups()[0],  'diff': ''})
+            diffs[-1]['diff'] += line + '\n'
+        return diffs
+
     def hg_status(self, empty=False, clean=False):
         """Get repository status.
         Returns a dict containing a *change char* -> *file list* mapping, where 
@@ -324,4 +349,3 @@ class Repo(object):
             return value.split(",")
         else:
             return value.split()
-
