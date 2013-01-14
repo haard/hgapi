@@ -234,7 +234,8 @@ class Repo(object):
          {'A': ['one.txt'], 'M': ['a_folder/two.txt', 'three.txt'],
          '!': [], '?': [], 'R': []}
 
-        If empty is set to non-False value, don't add empty lists
+        If empty is set to non-False value, don't add empty lists.
+        If clean is set to non-False value, add clean files as well (-A)
         """
         cmds = ['status']
         if clean: cmds.append('-A')        
