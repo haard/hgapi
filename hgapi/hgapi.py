@@ -226,6 +226,9 @@ class Repo(object):
         """Get a unified diff as returned by 'hg diff'
         rev_a and rev_b are passed as -r <rev> arguments to the call,
         and filenames are expected to be an iterable of file names.
+
+        Returns a list of dicts where every dict has a 'filename' and 'diff' field,
+        with diff being the complete diff for the file including header (diff -r xxxx -r xxx...).
         """
 
         cmds = ['diff']
