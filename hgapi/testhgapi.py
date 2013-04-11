@@ -295,10 +295,12 @@ class TestHgAPI(unittest.TestCase):
         original_tip = self.repo['tip'].node
         self.repo.hg_tag('mytag', 'othertag')
         self.repo.hg_tag('mytag2', rev=1)
+        self.repo.hg_tag('long mytag3', rev=2)
         tags = self.repo.hg_tags()
         self.assertEqual(tags, {'mytag': original_tip,
             'othertag': original_tip,
             'mytag2': self.repo[1].node,
+            'long mytag3': self.repo[2].node,
             'tip': self.repo[-1].node})
 
     def test_220_LogWithBranch(self):
