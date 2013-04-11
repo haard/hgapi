@@ -120,9 +120,13 @@ class Repo(object):
         cmd = ['tags']
         output = self.hg_command(*cmd)
         res = {}
+        reg_expr = "(?P<tag>.+\S)\s+(?P<rev>\d+):(?P<changeset>\w+)"
+        pattern = re.compile(reg_expr)
         for row in output.strip().split('\n'):
-            tag, changeset = row.split() # tip  5:aaaaaaaaaa
-            res[tag] = changeset.split(':')[1]
+            match = pattern.match(row)
+            tag = match.group("tag")
+            changeset = match.group("changeset")
+            res[tag] = changeset
         return res
 
     def hg_heads(self, short=False):
