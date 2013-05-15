@@ -320,6 +320,12 @@ class TestHgAPI(unittest.TestCase):
         self.assertEquals(len(diffs), 1)
         self.assertEquals(diffs[0]['filename'], 'file.txt')
         self.assertTrue('+even more stuff' in diffs[0]['diff'])
+        
+    def test_250_ExitCode(self):
+        try:
+            self.repo.hg_update('notexistingref')
+        except hgapi.HgException as update_ex:
+            self.assertEquals(update_ex.exit_code, -1)
 
 def test_doc():
     #Prepare for doctest

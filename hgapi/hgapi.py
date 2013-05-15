@@ -14,6 +14,13 @@ except:
     import simplejson as json
 
 
+class HgException(Exception):
+    """Exception class allowing a exit_code parameter and member
+    to be used when calling Mercurial to return exit code"""
+    def __init__(self, msg, exit_code=None):
+        super(HgException, self).__init__(msg)
+        self.exit_code = exit_code
+        
 class Revision(object):
     """A representation of a revision.
     Available fields are::
@@ -71,8 +78,8 @@ class Repo(object):
 
         if proc.returncode:
             cmd = (" ".join(["hg", "--cwd", self.path] + list(args)))
-            raise Exception("Error running %s:\n\tErr: %s\n\tOut: %s\n\tExit: %s" 
-                            % (cmd,err,out,proc.returncode))
+            raise HgException("Error running %s:\n\tErr: %s\n\tOut: %s\n\tExit: %s" 
+                            % (cmd,err,out,proc.returncode), exit_code=proc.returncode)
         return out
 
     def hg_init(self):
