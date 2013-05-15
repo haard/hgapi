@@ -325,8 +325,8 @@ class TestHgAPI(unittest.TestCase):
         try:
             self.repo.hg_update('notexistingref')
         except hgapi.HgException as update_ex:
-            self.assertEquals(update_ex.exit_code, -1)
-
+            self.assertNotEquals(update_ex.exit_code, None)
+            self.assertNotEquals(update_ex.exit_code, 0)
 def test_doc():
     #Prepare for doctest
     os.mkdir("./test_hgapi")
