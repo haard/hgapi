@@ -37,14 +37,18 @@ supports slicing and indexing notation.
 
 Example usage::
     >>> import hgapi
-    >>> repo = hgapi.Repo("test_hgapi") #existing folder
+    >>> repo = hgapi.Repo("test_hgapi")  # existing folder
     >>> repo.hg_init()
-    >>> repo.hg_add("file.txt") #already created but not added file
+    >>> repo.hg_add("file.txt")  # already created but not added file
     >>> repo.hg_commit("Adding file.txt", user="me")
     >>> str(repo['tip'].desc)
     'Adding file.txt'
     >>> len(repo[0:'tip'])
     1
+    >>> open('test_hgapi/file.txt', 'a').write('\nAdded line') # doctest: +IGNORE_RESULT
+    >>> diff = repo.hg_diff()  # returns list of diffs
+    >>> assert diff[0]['filename'] == 'file.txt'
+    >>> assert '+Added line' in diff[0]['diff']
     
 Installation
 ============
