@@ -50,8 +50,8 @@ class Repo(object):
         self.cfg = False
         self.user = user
         self._env = os.environ
-        self._env['LANG'] = 'en_US'
- 
+        self._env[str('LANG')] = str('en_US')
+		
     def __getitem__(self, rev=slice(0, 'tip')):
         """Get a Revision object for the revision identifed by rev
            rev can be a range (6c31a9f7be7ac58686f0610dd3c4ba375db2472c:tip)
