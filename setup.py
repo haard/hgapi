@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name = "hgapi",
-    version = "1.4.2",
+    version = "1.5.0",
     packages = ['hgapi'],
     test_suite = "hgapi.testhgapi.TestHgAPI",
     author = "Fredrik Håård",
@@ -13,7 +13,7 @@ setup(
     license = "Do whatever you want, don't blame me",
     keywords = "mercurial api",
     url = "https://bitbucket.org/haard/hgapi",
-    classifiers = """Development Status :: 4 - Beta
+    classifiers = """Development Status :: 5 - Production/Stable
 Intended Audience :: Developers
 License :: Freely Distributable
 License :: OSI Approved :: BSD License
@@ -23,6 +23,7 @@ Programming Language :: Python :: 2
 Programming Language :: Python :: 2.7
 Programming Language :: Python :: 3
 Programming Language :: Python :: 3.2
+Programming Language :: Python :: 3.3
 Topic :: Software Development :: Libraries
 Topic :: Software Development :: Version Control""".split('\n'),
     long_description = """
