@@ -327,6 +327,12 @@ class TestHgAPI(unittest.TestCase):
         except hgapi.HgException as update_ex:
             self.assertNotEquals(update_ex.exit_code, None)
             self.assertNotEquals(update_ex.exit_code, 0)
+
+    def test_260_EmptyDiff(self):
+        self.repo.hg_update('default', clean=True)
+        diffs = self.repo.hg_diff('default', filenames=['file.txt'])
+        self.assertEquals(len(diffs), 0)
+
 def test_doc():
     #Prepare for doctest
     os.mkdir("./test_hgapi")
