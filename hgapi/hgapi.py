@@ -252,13 +252,14 @@ class Repo(object):
 
         result =  self.hg_command(*cmds)
         diffs = []
-        filere = re.compile("^diff .* (\S+)$")
-        for line in result.split('\n'):
-           
-            match = filere.match(line)
-            if match:
-                diffs.append({'filename': match.groups()[0],  'diff': ''})
-            diffs[-1]['diff'] += line + '\n'
+        if result:
+            filere = re.compile("^diff .* (\S+)$")
+            for line in result.split('\n'):
+               
+                match = filere.match(line)
+                if match:
+                    diffs.append({'filename': match.groups()[0],  'diff': ''})
+                diffs[-1]['diff'] += line + '\n'
         return diffs
 
     def hg_status(self, empty=False, clean=False):
