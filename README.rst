@@ -30,6 +30,8 @@ So far, the API supports::
  hg tag
  hg tags
  hg diff
+ hg version
+ hg clone
 
 You also have access to the configuration (config, configbool,
 configlist) just as in the internal Mercurial API. The repository 

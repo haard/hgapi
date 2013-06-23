@@ -333,6 +333,15 @@ class TestHgAPI(unittest.TestCase):
         diffs = self.repo.hg_diff('default', filenames=['file.txt'])
         self.assertEquals(len(diffs), 0)
 
+    def test_400_version(self):
+        self.assertNotEquals(hgapi.hg_version(), "")
+
+    def test_410_clone(self):
+        repo = hgapi.hg_clone("./test", "./test-clone")
+        self.assertTrue(isinstance(repo, hgapi.Repo))
+        self.assertEquals(repo.path, self.repo.path + "-clone")
+        shutil.rmtree("test-clone")
+
 def test_doc():
     #Prepare for doctest
     os.mkdir("./test_hgapi")
