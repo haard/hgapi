@@ -49,6 +49,20 @@ class Revision(object):
         """Returns true if self.node == other.node"""
         return self.node == other.node
 
+def command(path, env, *args):
+    """Run a hg command in path and return the result. Throws on error."""
+    proc = Popen(["hg", "--cwd", path, "--encoding", "UTF-8"] + list(args),
+                 stdout=PIPE, stderr=PIPE, env=env)
+
+    out, err = [x.decode("utf-8") for x in proc.communicate()]
+
+    if proc.returncode:
+        cmd = (" ".join(["hg", "--cwd", path] + list(args)))
+        raise HgException("Error running %s:\n\tErr: %s\n\tOut: %s\n\tExit: %s"
+                          % (cmd, err, out, proc.returncode), exit_code=proc.returncode)
+
+    return out
+
 class Repo(object):
     """A representation of a Mercurial repository"""
     def __init__(self, path, user=None):
@@ -58,7 +72,7 @@ class Repo(object):
         self.user = user
         self._env = os.environ
         self._env[str('LANG')] = str('en_US')
-		
+
     def __getitem__(self, rev=slice(0, 'tip')):
         """Get a Revision object for the revision identifed by rev
            rev can be a range (6c31a9f7be7ac58686f0610dd3c4ba375db2472c:tip)
@@ -70,17 +84,8 @@ class Repo(object):
         return self.revision(rev)
 
     def hg_command(self, *args):
-        """Run a hg command in path and return the result.
-        Throws on error."""
-        proc = Popen(["hg", "--cwd", self.path, "--encoding", "UTF-8"] + list(args), stdout=PIPE, stderr=PIPE)
-
-        out, err = [x.decode("utf-8") for x in  proc.communicate()]
-
-        if proc.returncode:
-            cmd = (" ".join(["hg", "--cwd", self.path] + list(args)))
-            raise HgException("Error running %s:\n\tErr: %s\n\tOut: %s\n\tExit: %s"
-                              % (cmd,err,out,proc.returncode), exit_code=proc.returncode)
-        return out
+        """Run a hg command. Throws on error."""
+        return command(self.path, self._env, *args)
 
     def hg_init(self):
         """Initialize a new repo"""
@@ -366,22 +371,13 @@ class Repo(object):
             return value.split()
 
 def hg_version():
-    """Return version number of mercurial"""
-    proc = Popen(["hg", "version"], stdout=PIPE, stderr=PIPE)
-    out, err = [x.decode("utf-8") for x in  proc.communicate()]
-    if proc.returncode:
-        return "not installed"
+    """Return the version number of Mercurial."""
+    out = command(".", os.environ, "version")
     match = re.search('\s([\w\.\-]+?)\)$', out.split("\n")[0])
     return match.group(1)
 
 def hg_clone(url, path, *args):
     """Clone repository at given `url` to `path`,
-    then return repo object to `path`"""
-    cmds = ["hg", "clone", url, path] + list(args)
-    proc = Popen(cmds, stdout=PIPE, stderr=PIPE)
-    out, err = [x.decode("utf-8") for x in proc.communicate()]
-    if proc.returncode:
-        cmd = " ".join(cmds)
-        raise HgException("Error running %s:\n\tErr: %s\n\tOut: %s\n\tExit: %s"
-                          % (cmd,err,out,proc.returncode))
+    then return repo object to `path`."""
+    command(".", os.environ, "clone", url, path, *args)
     return Repo(path)
