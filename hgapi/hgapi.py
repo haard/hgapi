@@ -110,6 +110,10 @@ class Repo(object):
         """Remove a file from the repo"""
         self.hg_command("remove", filepath)
 
+    def hg_move(self, source, destination):
+        """Move a file in the repo."""
+        self.hg_command("move", source, destination)
+
     def hg_update(self, reference, clean=False):
         """Update to the revision identified by reference"""
         cmd = ["update", str(reference)]

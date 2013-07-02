@@ -333,6 +333,17 @@ class TestHgAPI(unittest.TestCase):
         diffs = self.repo.hg_diff('default', filenames=['file.txt'])
         self.assertEquals(len(diffs), 0)
 
+    def test_270_Move(self):
+        with open("test/source.txt", "w") as out:
+            out.write("stuff")
+        self.repo.hg_add("source.txt")
+        self.repo.hg_commit("Source is committed.")
+        self.repo.hg_move("source.txt", "destination.txt")
+        # get diffs and check proper move
+        diffs = self.repo.hg_diff()
+        self.assertTrue(diffs[0]['filename'] == 'destination.txt')
+        self.assertTrue(diffs[1]['filename'] == 'source.txt')
+
     def test_400_version(self):
         self.assertNotEquals(hgapi.hg_version(), "")
 
