@@ -2,3 +2,4 @@
 """
 from . import hgapi as _hgapi
 Repo = _hgapi.Repo
+HgException = _hgapi.HgException
