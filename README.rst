@@ -1,5 +1,10 @@
 hgapi
 =====
+
+.. image:: https://secure.travis-ci.org/haard/hgapi?branch=master
+   :target: http://travis-ci.org/haard/hgapi
+
+
 hgapi is a pure-Python API to Mercurial, that uses the command-line
 interface instead of the internal Mercurial API. The rationale for
 this is twofold: the internal API is unstable, and it is GPL.
