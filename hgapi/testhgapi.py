@@ -39,11 +39,18 @@ class TestHgAPI(unittest.TestCase):
         with open("test/file.txt", "w") as out:
             out.write("stuff")
         self.repo.hg_add("file.txt")
-        
+
+    def test_021_Add(self):
+        with open("test/foo.txt", "w") as out:
+            out.write("A sample file")
+        with open("test/bar.txt", "w") as out:
+            out.write("Another sample file")
+        self.repo.hg_add()
+
     def test_030_Commit(self):
         #Commit and check that we're on a real revision
         self.repo.hg_commit("adding", user="test")
-        rev  = self.repo.hg_rev()
+        rev = self.repo.hg_rev()
         hgid = self.repo.hg_id()
         self.assertEquals(rev, 0)
         self.assertNotEquals(hgid, "000000000000")
@@ -54,7 +61,7 @@ class TestHgAPI(unittest.TestCase):
 
         #Commit and check that changes have been made
         self.repo.hg_commit("modifying", user="test")
-        rev2  = self.repo.hg_rev()
+        rev2 = self.repo.hg_rev()
         hgid2 = self.repo.hg_id()
         self.assertNotEquals(rev, rev2)
         self.assertNotEquals(hgid, hgid2)
@@ -147,7 +154,7 @@ class TestHgAPI(unittest.TestCase):
             out.write("stuff stuff stuff")
         status = self.repo.hg_status()
         self.assertEquals(status, 
-                          {'A': [], 'M': ['file.txt'], '!': [], 
+                          {'A': [], 'M': ['file.txt'], '!': [],
                            '?': [], 'R': []})
         
     def test_100_CleanStatus(self):

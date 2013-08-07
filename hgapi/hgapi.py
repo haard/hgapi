@@ -102,9 +102,25 @@ class Repo(object):
         str_rev = res.strip("\n +")
         return int(str_rev)
 
-    def hg_add(self, filepath):
-        """Add a file to the repo"""
-        self.hg_command("add", filepath)
+    def hg_add(self, filepath=None):
+        """
+        Add a file to the repo; when no filepath is given,
+        the hg add all files are added to the repo.
+        """
+        if filepath is None:
+            self.hg_command("add")
+        else:
+            self.hg_command("add", filepath)
+
+    def hg_addremove(self, filepath=None):
+        """
+        Add a file to the repo; when no filepath is given,
+        the hg add all files are added to the repo.
+        """
+        if filepath is None:
+            self.hg_command("addremove")
+        else:
+            self.hg_command("addremove", filepath)
 
     def hg_remove(self, filepath):
         """Remove a file from the repo"""
