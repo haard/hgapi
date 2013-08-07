@@ -350,6 +350,15 @@ class TestHgAPI(unittest.TestCase):
         diffs = self.repo.hg_diff()
         self.assertTrue(diffs[0]['filename'] == 'destination.txt')
         self.assertTrue(diffs[1]['filename'] == 'source.txt')
+        self.repo.hg_commit("Checked move.")
+
+    def test_280_AddRemove(self):
+        os.remove("test/foo.txt")
+        with open("test/fizz.txt", "w") as out:
+            out.write("fuzz")
+        self.repo.hg_addremove()
+        self.assertListEqual(self.repo.hg_status()['A'], ['fizz.txt'])
+        self.assertListEqual(self.repo.hg_status()['R'], ['foo.txt'])
 
     def test_400_version(self):
         self.assertNotEquals(hgapi.Repo.hg_version(), "")

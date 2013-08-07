@@ -21,7 +21,8 @@ So far, the API supports::
 
  hg init
  hg id
- hg add <file>
+ hg add [<file>]
+ hg addremove [<file>]
  hg commit [files] [-u name] [--close-branch]
  hg update <rev>
  hg heads
@@ -35,6 +36,7 @@ So far, the API supports::
  hg tag
  hg tags
  hg diff
+ hg
  hg version
  hg clone
  hg move
