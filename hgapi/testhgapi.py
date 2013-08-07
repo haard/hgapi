@@ -352,10 +352,10 @@ class TestHgAPI(unittest.TestCase):
         self.assertTrue(diffs[1]['filename'] == 'source.txt')
 
     def test_400_version(self):
-        self.assertNotEquals(hgapi.hg_version(), "")
+        self.assertNotEquals(hgapi.Repo.hg_version(), "")
 
     def test_410_clone(self):
-        repo = hgapi.hg_clone("./test", "./test-clone")
+        repo = hgapi.Repo.hg_clone("./test", "./test-clone")
         self.assertTrue(isinstance(repo, hgapi.Repo))
         self.assertEquals(repo.path, self.repo.path + "-clone")
         shutil.rmtree("test-clone")
