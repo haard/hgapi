@@ -109,7 +109,7 @@ class Repo(object):
     def hg_add(self, filepath=None):
         """
         Add a file to the repo; when no filepath is given,
-        the hg add all files are added to the repo.
+        all files are added to the repo.
         """
         if filepath is None:
             self.hg_command("add")
@@ -119,7 +119,8 @@ class Repo(object):
     def hg_addremove(self, filepath=None):
         """
         Add a file to the repo; when no filepath is given,
-        the hg add all files are added to the repo.
+        all files are added and removed to and respectively
+        from the repo.
         """
         if filepath is None:
             self.hg_command("addremove")

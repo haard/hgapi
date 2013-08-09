@@ -39,6 +39,7 @@ class TestHgAPI(unittest.TestCase):
         with open("test/file.txt", "w") as out:
             out.write("stuff")
         self.repo.hg_add("file.txt")
+        self.assertListEqual(self.repo.hg_status()['A'], ['file.txt'])
 
     def test_021_Add(self):
         with open("test/foo.txt", "w") as out:
@@ -46,6 +47,7 @@ class TestHgAPI(unittest.TestCase):
         with open("test/bar.txt", "w") as out:
             out.write("Another sample file")
         self.repo.hg_add()
+        self.assertListEqual(self.repo.hg_status()['A'], ['bar.txt', 'file.txt', 'foo.txt'])
 
     def test_030_Commit(self):
         #Commit and check that we're on a real revision
