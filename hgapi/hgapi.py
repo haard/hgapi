@@ -416,4 +416,4 @@ class Repo(object):
         when no repo is available."""
         if path is None:
             path = os.getcwd()
-        return Repo.command(path, os.environ, "root")
+        return Repo.command(path, os.environ, "root").strip("\n +")

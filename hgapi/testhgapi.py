@@ -374,7 +374,7 @@ class TestHgAPI(unittest.TestCase):
     def test_420_root(self):
         # regular test repo
         reply = hgapi.Repo.hg_root("./test")
-        self.assertTrue(reply.endswith("hgapi/hgapi/test\n"))
+        self.assertTrue(reply.endswith("hgapi/hgapi/test"))
         # two non existing repos
         self.assertRaises(hgapi.HgException, hgapi.Repo.hg_root, "./whatever")
         self.assertRaises(hgapi.HgException, hgapi.Repo.hg_root, "/tmp")
