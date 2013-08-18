@@ -371,6 +371,15 @@ class TestHgAPI(unittest.TestCase):
         self.assertEquals(repo.path, self.repo.path + "-clone")
         shutil.rmtree("test-clone")
 
+    def test_420_root(self):
+        # regular test repo
+        reply = hgapi.Repo.hg_root("./test")
+        self.assertTrue(reply.endswith("hgapi/hgapi/test\n"))
+        # two non existing repos
+        self.assertRaises(hgapi.HgException, hgapi.Repo.hg_root, "./whatever")
+        self.assertRaises(hgapi.HgException, hgapi.Repo.hg_root, "/tmp")
+
+
 def test_doc():
     #Prepare for doctest
     os.mkdir("./test_hgapi")

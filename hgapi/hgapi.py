@@ -408,3 +408,12 @@ class Repo(object):
         then return repo object to `path`."""
         Repo.command(".", os.environ, "clone", url, path, *args)
         return Repo(path)
+
+    @classmethod
+    def hg_root(self, path):
+        """Returns the root (top) of the path. When no path is
+        given, current working directory is used. Raises HgException
+        when no repo is available."""
+        if path is None:
+            path = os.getcwd()
+        return Repo.command(path, os.environ, "root")
