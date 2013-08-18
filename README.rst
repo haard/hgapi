@@ -39,6 +39,7 @@ So far, the API supports::
  hg version
  hg clone
  hg move <source> <destination>
+ hg root
 
 You also have access to the configuration (config, configbool,
 configlist) just as in the internal Mercurial API. The repository 
