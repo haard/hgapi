@@ -361,7 +361,7 @@ class TestHgAPI(unittest.TestCase):
             out.write("stuff")
         self.repo.hg_add("source.txt")
         self.repo.hg_commit("Source is committed.")
-        self.repo.hg_move("source.txt", "destination.txt")
+        self.repo.hg_rename("source.txt", "destination.txt")
         # get diffs and check proper move
         diffs = self.repo.hg_diff()
         self.assertTrue(diffs[0]['filename'] == 'destination.txt')

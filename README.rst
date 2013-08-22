@@ -19,27 +19,29 @@ exclusively. Add any feature requests or bugs found to the issue tracker.
 
 So far, the API supports::
 
- hg init
- hg id
  hg add [<file>]
  hg addremove [<file>]
- hg commit [files] [-u name] [--close-branch]
- hg update <rev>
- hg heads
- hg log
- hg remove
- hg status
- hg merge (fails on conflict)
- hg revert
  hg branch
  hg branches
+ hg clone
+ hg commit [files] [-u name] [--close-branch]
+ hg diff
+ hg heads
+ hg id
+ hg init
+ hg log
+ hg merge (fails on conflict)
+ hg pull [<source>]
+ hg push [<destination>]
+ hg remove
+ hg rename <source> <destination>
+ hg revert
+ hg root
+ hg status
  hg tag
  hg tags
- hg diff
+ hg update <rev>
  hg version
- hg clone
- hg move <source> <destination>
- hg root
 
 You also have access to the configuration (config, configbool,
 configlist) just as in the internal Mercurial API. The repository 
