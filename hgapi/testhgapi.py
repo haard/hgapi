@@ -3,27 +3,40 @@ import unittest, doctest
 import os, shutil, os.path
 import hgapi 
 
+
+# TODO: add better logger test
 class TestHgAPI(unittest.TestCase):
     """Tests for hgapi.py
-    Uses and wipes subfolder named 'test'
+    Uses and wipes subfolders named 'test' (a.k.a repo), 'test-clone' (a.k.a clone)
     Tests are dependant on each other; named test_<number>_name for sorting
     """
     repo = hgapi.Repo("./test", user="testuser")
-    
+    clone = hgapi.Repo("./test-clone", user="testuser")
+
+    @classmethod
+    def _delete_and_create(cls, path):
+        if os.path.exists(path):
+            shutil.rmtree(path)
+        os.mkdir(path)
+        assert os.path.exists(path)
+
     @classmethod
     def setUpClass(cls):
         #Patch Python 3
         if hasattr(cls, "assertEqual"):
             setattr(cls, "assertEquals", cls.assertEqual)
             setattr(cls, "assertNotEquals", cls.assertNotEqual)
-        if os.path.exists("./test"):
-            shutil.rmtree("./test")
-        os.mkdir("./test")
-        assert os.path.exists("./test")
+        TestHgAPI._delete_and_create("./test")
+        #TestHgAPI._delete_and_create("./test-clone")
+        TestHgAPI._delete_and_create("./original")
+        #TestHgAPI._delete_and_create("./clone")
 
     @classmethod
     def tearDownClass(self):
-        shutil.rmtree("test")
+        shutil.rmtree("test", ignore_errors=True)
+        shutil.rmtree("test-clone", ignore_errors=True)
+        shutil.rmtree("original", ignore_errors=True)
+        shutil.rmtree("clone", ignore_errors=True)
 
     def test_000_Init(self):
         self.repo.hg_init()
@@ -343,6 +356,7 @@ class TestHgAPI(unittest.TestCase):
         self.assertEquals(len(diffs), 0)
 
     def test_270_Move(self):
+        """Add source.txt, commit it.  Then move it to destination and commit"""
         with open("test/source.txt", "w") as out:
             out.write("stuff")
         self.repo.hg_add("source.txt")
@@ -355,6 +369,7 @@ class TestHgAPI(unittest.TestCase):
         self.repo.hg_commit("Checked move.")
 
     def test_280_AddRemove(self):
+        """Remove foo and add fizz, then addremove."""
         os.remove("test/foo.txt")
         with open("test/fizz.txt", "w") as out:
             out.write("fuzz")
@@ -362,22 +377,46 @@ class TestHgAPI(unittest.TestCase):
         self.assertListEqual(self.repo.hg_status()['A'], ['fizz.txt'])
         self.assertListEqual(self.repo.hg_status()['R'], ['foo.txt'])
 
+    def test_300_clone(self):
+        """Clone test to test clone."""
+        self.clone = hgapi.Repo.hg_clone("./test", "./test-clone")
+        self.assertTrue(isinstance(self.clone, hgapi.Repo))
+        self.assertEquals(self.clone.path, self.repo.path + "-clone")
+
+    def test_310_pull(self):
+        """Add a new directory with some files in test and pull test from clone."""
+        os.mkdir("./test/cities")
+        with open("./test/cities/brussels.txt", "w") as out:
+            out.write("brussel")
+        with open("./test/cities/antwerp.txt", "w") as out:
+            out.write("antwerpen")
+        self.repo.hg_add()
+        self.repo.hg_commit("[TEST] Added two cities.")
+        self.clone.hg_pull("../test")
+        # TODO: assert
+
+    def test_320_push(self):
+        """Update, add another file in test-clone and push test-clone to test."""
+        #import time
+        #time.sleep(120)
+        self.clone.hg_update("tip")
+        #self.clone.hg_pull()
+        with open("./test-clone/ghent.txt", "w") as out:
+            out.write("gent")
+        self.clone.hg_add()
+        self.clone.hg_commit("[CLONE] Added one file.")
+        self.clone.hg_push("../test")
+        # TODO: assert
+
     def test_400_version(self):
         self.assertNotEquals(hgapi.Repo.hg_version(), "")
 
-    def test_410_clone(self):
-        repo = hgapi.Repo.hg_clone("./test", "./test-clone")
-        self.assertTrue(isinstance(repo, hgapi.Repo))
-        self.assertEquals(repo.path, self.repo.path + "-clone")
-        shutil.rmtree("test-clone")
-
-    def test_420_root(self):
+    def test_410_root(self):
         # regular test repo
         reply = hgapi.Repo.hg_root("./test")
         self.assertTrue(reply.endswith("hgapi/hgapi/test"))
-        # two non existing repos
+        # non existing repo
         self.assertRaises(hgapi.HgException, hgapi.Repo.hg_root, "./whatever")
-        self.assertRaises(hgapi.HgException, hgapi.Repo.hg_root, "/tmp")
 
 
 def test_doc():
@@ -393,7 +432,6 @@ def test_doc():
         shutil.rmtree("test_hgapi")
 
 if __name__ == "__main__":
-    import sys
     try:
         test_doc()
     finally:

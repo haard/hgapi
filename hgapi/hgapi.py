@@ -66,7 +66,7 @@ class Repo(object):
     def command(cls, path, env, *args):
         """Run a hg command in path and return the result. Throws on error."""
         proc = Popen(["hg", "--cwd", path, "--encoding", "UTF-8"] + list(args),
-                 stdout=PIPE, stderr=PIPE, env=env)
+                     stdout=PIPE, stderr=PIPE, env=env)
 
         out, err = [x.decode("utf-8") for x in proc.communicate()]
 
@@ -211,6 +211,18 @@ class Repo(object):
         # was passed in files kwarg
         args = [arg for arg in args if arg]
         self.hg_command("commit", "-m", message, *args)
+
+    def hg_push(self, destination=None):
+        if destination is None:
+            self.hg_command("push")
+        else:
+            self.hg_command("push", destination)
+
+    def hg_pull(self, source=None):
+        if source is None:
+            self.hg_command("pull")
+        else:
+            self.hg_command("pull", source)
 
     def hg_log(self, identifier=None, limit=None, template=None, branch=None, **kwargs):
         """Get repositiory log."""
