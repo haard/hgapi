@@ -27,16 +27,12 @@ class TestHgAPI(unittest.TestCase):
             setattr(cls, "assertEquals", cls.assertEqual)
             setattr(cls, "assertNotEquals", cls.assertNotEqual)
         TestHgAPI._delete_and_create("./test")
-        #TestHgAPI._delete_and_create("./test-clone")
         TestHgAPI._delete_and_create("./original")
-        #TestHgAPI._delete_and_create("./clone")
 
     @classmethod
     def tearDownClass(self):
         shutil.rmtree("test", ignore_errors=True)
         shutil.rmtree("test-clone", ignore_errors=True)
-        shutil.rmtree("original", ignore_errors=True)
-        shutil.rmtree("clone", ignore_errors=True)
 
     def test_000_Init(self):
         self.repo.hg_init()
