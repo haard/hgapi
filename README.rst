@@ -10,7 +10,7 @@ interface instead of the internal Mercurial API. The rationale for
 this is twofold: the internal API is unstable, and it is GPL.
 
 hgapi works for all versions of Mercurial, and will instantly reflect any
-changes to the repository (including hgrc). It also has a really 
+changes to the repository (including hgrc). It also has a really
 permissive license (do whatever you want, don't blame me).
 
 For example of code that uses this API, take a look at
@@ -44,10 +44,11 @@ So far, the API supports::
  hg version
 
 You also have access to the configuration (config, configbool,
-configlist) just as in the internal Mercurial API. The repository 
+configlist) just as in the internal Mercurial API. The repository
 supports slicing and indexing notation.
 
 Example usage::
+
     >>> import hgapi
     >>> repo = hgapi.Repo("test_hgapi")  # existing folder
     >>> repo.hg_init()
@@ -57,11 +58,11 @@ Example usage::
     'Adding file.txt'
     >>> len(repo[0:'tip'])
     1
-    >>> open('test_hgapi/file.txt', 'a').write('\nAdded line') # doctest: +IGNORE_RESULT
+    >>> open('test_hgapi/file.txt', 'a').write('\nAdded line')
     >>> diff = repo.hg_diff()  # returns list of diffs
     >>> assert diff[0]['filename'] == 'file.txt'
     >>> assert '+Added line' in diff[0]['diff']
-    
+
 Installation
 ============
 
@@ -81,7 +82,7 @@ installed, and then run::
 License
 =======
 
-Copyright (c) 2011, Fredrik Håård 
+Copyright (c) 2011, Fredrik Håård
 
 Do whatever you want, don't blame me. You may also use this software
 as licensed under the MIT or BSD licenses, or the more permissive license below:

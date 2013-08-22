@@ -387,22 +387,28 @@ class TestHgAPI(unittest.TestCase):
         with open("./test/cities/antwerp.txt", "w") as out:
             out.write("antwerpen")
         self.repo.hg_add()
-        self.repo.hg_commit("[TEST] Added two cities.")
+        message = "[TEST] Added two cities."
+        self.repo.hg_commit(message)
         self.clone.hg_pull("../test")
-        # TODO: assert
+        # update clone after pull and then check if the identifiers are the same
+        self.clone.hg_update("tip")
+        self.assertEquals(self.clone.hg_id(), self.repo.hg_id())
+        # check summary of pulled tip
+        self.assertTrue(message in self.clone.hg_log(identifier="tip"))
 
     def test_320_push(self):
         """Update, add another file in test-clone and push test-clone to test."""
-        #import time
-        #time.sleep(120)
-        self.clone.hg_update("tip")
-        #self.clone.hg_pull()
-        with open("./test-clone/ghent.txt", "w") as out:
+        with open("./test-clone/cities/ghent.txt", "w") as out:
             out.write("gent")
         self.clone.hg_add()
-        self.clone.hg_commit("[CLONE] Added one file.")
+        message = "[CLONE] Added one file."
+        self.clone.hg_commit(message)
         self.clone.hg_push("../test")
-        # TODO: assert
+        # update test after push and assert
+        self.repo.hg_update("tip")
+        self.assertEquals(self.clone.hg_id(), self.repo.hg_id())
+        # check summary of pushed tip
+        self.assertTrue(message in self.repo.hg_log(identifier="tip"))
 
     def test_400_version(self):
         self.assertNotEquals(hgapi.Repo.hg_version(), "")
@@ -410,7 +416,7 @@ class TestHgAPI(unittest.TestCase):
     def test_410_root(self):
         # regular test repo
         reply = hgapi.Repo.hg_root("./test")
-        self.assertTrue(reply.endswith("hgapi/hgapi/test"))
+        self.assertTrue(reply.endswith("/hgapi/test"))
         # non existing repo
         self.assertRaises(hgapi.HgException, hgapi.Repo.hg_root, "./whatever")
 
@@ -426,6 +432,7 @@ def test_doc():
     finally:
         #Cleanup
         shutil.rmtree("test_hgapi")
+
 
 if __name__ == "__main__":
     try:
