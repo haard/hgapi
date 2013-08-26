@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name = "hgapi",
-    version = "1.6.0",
+    version = "1.7.0rc1",
     packages = ['hgapi'],
     test_suite = "hgapi.testhgapi.TestHgAPI",
     author = "Fredrik Håård",
