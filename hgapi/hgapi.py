@@ -404,7 +404,11 @@ class Repo(object):
             changes.setdefault(change, []).append(path)
         return changes
 
-    rev_log_tpl = '\{"node":"{node|short}","rev":"{rev}","author":"{author|urlescape}","branch":"{branches}","parents":"{parents}","date":"{date|isodate}","tags":"{tags}","desc":"{desc|urlescape}\"}\n'
+    rev_log_tpl = (
+        '\{"node":"{node|short}","rev":"{rev}","author":"{author|urlescape}",'
+        '"branch":"{branches}","parents":"{parents}","date":"{date|isodate}",'
+        '"tags":"{tags}","desc":"{desc|urlescape}\"}\n'
+    )
 
     def revision(self, identifier):
         """Get the identified revision as a Revision object."""

@@ -2,7 +2,6 @@ from __future__ import with_statement
 
 import unittest
 import doctest
-import pep8
 
 import os
 
@@ -440,32 +439,21 @@ class TestHgAPI(unittest.TestCase):
         self.assertRaises(hgapi.HgException, hgapi.Repo.hg_root, "./whatever")
 
 
-class TestCodeFormat(unittest.TestCase):
-
-    def test_pep8_conformance(self):
-        """Test that we conform to PEP8."""
-        pep8style = pep8.StyleGuide(quiet=True)
-        result = pep8style.check_files(['hgapi.py',
-                                        'testhgapi.py',
-                                        '__init.py__'])
-        self.assertEqual(result.total_errors, 0,
-                         "Found code style errors (and warnings).")
-
-
 def test_doc():
-    #Prepare for doctest
+    # prepare for doctest
     os.mkdir("./test_hgapi")
     with open("test_hgapi/file.txt", "w") as target:
         w = target.write("stuff")
     try:
-        #Run doctest
+        # run doctest
         res = doctest.testfile("../README.rst")
     finally:
-        #Cleanup
+        # cleanup
         shutil.rmtree("test_hgapi")
 
 
 if __name__ == "__main__":
+    # run full test suite
     try:
         test_doc()
     finally:
