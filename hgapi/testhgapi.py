@@ -31,7 +31,7 @@ class TestHgAPI(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        #Patch Python 3
+        # patch for Python 3
         if hasattr(cls, "assertEqual"):
             setattr(cls, "assertEquals", cls.assertEqual)
             setattr(cls, "assertNotEquals", cls.assertNotEqual)
@@ -69,18 +69,18 @@ class TestHgAPI(unittest.TestCase):
                              ['bar.txt', 'file.txt', 'foo.txt'])
 
     def test_030_Commit(self):
-        #Commit and check that we're on a real revision
+        # commit and check that we're on a real revision
         self.repo.hg_commit("adding", user="test")
         rev = self.repo.hg_rev()
         hgid = self.repo.hg_id()
         self.assertEquals(rev, 0)
         self.assertNotEquals(hgid, "000000000000")
 
-        #write some more to file
+        # write some more to file
         with open("test/file.txt", "w+") as out:
             out.write("more stuff")
 
-        #Commit and check that changes have been made
+        # commit and check that changes have been made
         self.repo.hg_commit("modifying", user="test")
         rev2 = self.repo.hg_rev()
         hgid2 = self.repo.hg_id()
@@ -108,7 +108,7 @@ class TestHgAPI(unittest.TestCase):
         with open("test/file.txt", "w+") as out:
             out.write("even more stuff")
 
-        #creates new head
+        # creates new head
         self.repo.hg_commit("modifying", user="test")
 
         heads = self.repo.hg_heads()
@@ -121,11 +121,11 @@ class TestHgAPI(unittest.TestCase):
         self.assertTrue(node[:12] in heads)
         self.assertTrue(self.repo.hg_node()[:12] in heads)
 
-        #Close head again
+        # close head again
         self.repo.hg_commit("Closing branch", close_branch=True)
         self.repo.hg_update(node)
 
-        #Check that there's only one head remaining
+        # check that there's only one head remaining
         heads = self.repo.hg_heads()
         self.assertEquals(len(heads), 1)
         self.assertTrue(node in heads)
@@ -139,7 +139,7 @@ class TestHgAPI(unittest.TestCase):
                        "stuff.list = one two three\n" +
                        "[ui]\n" +
                        "username = testsson")
-        #re-read config
+        # re-read config
         self.repo.read_config()
         self.assertEquals(self.repo.config('test', 'stuff.otherstuff'),
                           "tsosvalue")
@@ -337,6 +337,9 @@ class TestHgAPI(unittest.TestCase):
     def test_220_LogWithBranch(self):
         default = self.repo.hg_log(branch='default')
         branch = self.repo.hg_log(branch='test_branch')
+
+        print(default)
+        print(branch)
 
         self.assertTrue("commit test_branch" in branch)
         self.assertFalse("commit test_branch" in default)
