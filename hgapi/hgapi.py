@@ -292,8 +292,6 @@ class Repo(object):
             for key in kwargs:
                 cmds += [key, kwargs[key]]
         log = self.hg_command(*cmds)
-        print(log)
-
         return log
 
     def hg_branch(self, branch_name=None):
