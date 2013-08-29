@@ -504,7 +504,7 @@ class Repo(object):
     @classmethod
     def hg_root(self, path):
         """
-            Returns the root (top) of the path.
+            Return the root (top) of the path.
 
             When no path is given, current working directory is used.
             Raises HgException when no repo is available.
