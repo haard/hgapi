@@ -1,44 +1,55 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, unicode_literals, with_statement
 from subprocess import Popen, STDOUT, PIPE
+
 try:
     from urllib import unquote
-except: #python 3
+except ImportError:  # python 3
     from urllib.parse import unquote
+
 import re
 import os.path
 import os
+
 try:
-    import json #for reading logs
-except:
+    import json  # for reading logs
+except ImportError:
     import simplejson as json
 
 
 class HgException(Exception):
-    """Exception class allowing a exit_code parameter and member
-    to be used when calling Mercurial to return exit code"""
+    """
+        Exception class allowing a exit_code parameter and member
+        to be used when calling Mercurial to return exit code.
+    """
+
     def __init__(self, msg, exit_code=None):
         super(HgException, self).__init__(msg)
         self.exit_code = exit_code
-        
+
+
 class Revision(object):
-    """A representation of a revision.
-    Available fields are::
-
-      node, rev, author, branch, parents, date, tags, desc
-
-    A Revision object is equal to any other object with the same value for node
     """
+        A representation of a revision.
+        Available fields are::
+
+            node, rev, author, branch, parents, date, tags, desc
+
+        A Revision object is equal to any other object with the
+        same value for node.
+    """
+
     def __init__(self, json_log):
         """Create a Revision object from a JSON representation"""
         rev = json.loads(json_log)
-        
+
         for key in rev.keys():
             self.__setattr__(key, unquote(rev[key]))
         self.rev = int(self.rev)
-        if not self.branch: self.branch='default'
+        if not self.branch:
+            self.branch = 'default'
         if not self.parents:
-            self.parents = [int(self.rev)-1]
+            self.parents = [int(self.rev) - 1]
         else:
             self.parents = [int(p.split(':')[0]) for p in self.parents.split()]
 
@@ -46,70 +57,81 @@ class Revision(object):
         return self
 
     def __eq__(self, other):
-        """Returns true if self.node == other.node"""
+        """Returns true if self.node == other.node."""
         return self.node == other.node
 
 
-
 class Repo(object):
-    """A representation of a Mercurial repository"""
+    """A representation of a Mercurial repository."""
+
     def __init__(self, path, user=None):
-        """Create a Repo object from the repository at path"""
+        """Create a Repo object from the repository at path."""
         self.path = path
         self.cfg = False
         self.user = user
-    
+
     _env = os.environ
     _env[str('LANG')] = str('en_US')
 
     @classmethod
     def command(cls, path, env, *args):
-        """Run a hg command in path and return the result. Throws on error."""
+        """
+            Run a hg command in path and return the result.
+
+            Raise on error.
+        """
         proc = Popen(["hg", "--cwd", path, "--encoding", "UTF-8"] + list(args),
-                 stdout=PIPE, stderr=PIPE, env=env)
+                     stdout=PIPE, stderr=PIPE, env=env)
 
         out, err = [x.decode("utf-8") for x in proc.communicate()]
 
         if proc.returncode:
             cmd = (" ".join(["hg", "--cwd", path] + list(args)))
-            raise HgException("Error running %s:\n\tErr: %s\n\tOut: %s\n\tExit: %s"
-                              % (cmd, err, out, proc.returncode), exit_code=proc.returncode)
+            raise HgException("Error running %s:\n\" + "
+                              "tErr: %s\n\t"
+                              "Out: %s\n\t"
+                              "Exit: %s"
+                              % (cmd, err, out, proc.returncode),
+                              exit_code=proc.returncode)
 
         return out
 
     def __getitem__(self, rev=slice(0, 'tip')):
-        """Get a Revision object for the revision identifed by rev
-           rev can be a range (6c31a9f7be7ac58686f0610dd3c4ba375db2472c:tip)
-           a single changeset id
-           or it can be left blank to indicate the entire history
+        """
+            Get a Revision object for the revision identified by rev.
+
+            rev can be a range (6c31a9f7be7ac58686f0610dd3c4ba375db2472c:tip)
+            a single changeset id or it can be left blank to indicate
+            the entire history.
         """
         if isinstance(rev, slice):
             return self.revisions(rev)
         return self.revision(rev)
 
     def hg_command(self, *args):
-        """Run a hg command. Throws on error."""
+        """Run a hg command."""
         return Repo.command(self.path, self._env, *args)
 
     def hg_init(self):
-        """Initialize a new repo"""
+        """Initialize a new repo."""
         self.hg_command("init")
 
     def hg_id(self):
-        """Get the output of the hg id command (truncated node)"""
+        """Get the output of the hg id command (truncated node)."""
         res = self.hg_command("id", "-i")
         return res.strip("\n +")
-        
+
     def hg_rev(self):
-        """Get the revision number of the current revision"""
+        """Get the revision number of the current revision."""
         res = self.hg_command("id", "-n")
         str_rev = res.strip("\n +")
         return int(str_rev)
 
     def hg_add(self, filepath=None):
         """
-        Add a file to the repo; when no filepath is given,
-        all files are added to the repo.
+            Add a file to the repo.
+
+            when no filepath is given, all files are added to the repo.
         """
         if filepath is None:
             self.hg_command("add")
@@ -118,9 +140,10 @@ class Repo(object):
 
     def hg_addremove(self, filepath=None):
         """
-        Add a file to the repo; when no filepath is given,
-        all files are added and removed to and respectively
-        from the repo.
+            Add a file to the repo.
+
+            When no filepath is given, all files are added and removed
+            to and respectively from the repo.
         """
         if filepath is None:
             self.hg_command("addremove")
@@ -135,25 +158,41 @@ class Repo(object):
         """Move a file in the repo."""
         self.hg_command("move", source, destination)
 
+    def hg_rename(self, source, destination):
+        """
+            Move a file in the repo.
+            This is hg_more.
+        """
+        return self.hg_move(source, destination)
+
     def hg_update(self, reference, clean=False):
-        """Update to the revision identified by reference"""
+        """Update to the revision identified by reference."""
         cmd = ["update", str(reference)]
-        if clean: cmd.append("--clean")
+        if clean:
+            cmd.append("--clean")
         self.hg_command(*cmd)
 
     def hg_tag(self, *tags, **kwargs):
-        """Add one or more tags to the current revision, or revision given by
-        passing 'rev' as a keyword argument::
-          
-          >>> repo.hg_tag('mytag', rev=3)"""
+        """
+            Add one or more tags to the current revision.
+
+            Add one or more tags to the current revision, or revision given by
+            passing 'rev' as a keyword argument::
+
+          >>> repo.hg_tag('mytag', rev=3)
+        """
         rev = kwargs.get('rev')
         cmd = ['tag'] + list(tags)
-        if rev: cmd += ['-r', str(rev)]
+        if rev:
+            cmd += ['-r', str(rev)]
         self.hg_command(*cmd)
 
     def hg_tags(self):
-        """Get all tags from the repo as 
-        a dict containing tag: shortnode mapping"""
+        """
+            Get all tags from the repo.
+
+            Retruns a dict containing tag: shortnode mapping
+        """
         cmd = ['tags']
         output = self.hg_command(*cmd)
         res = {}
@@ -167,15 +206,22 @@ class Repo(object):
         return res
 
     def hg_heads(self, short=False):
-        """Gets a list with the node id:s of all open heads.
-        If short is given and is not False, return the short form of the node id"""
+        """
+            Get a list with the node identifiers of all open heads.
+            If short is given and is not False, return the short
+            form of the node id.
+        """
         template = "{node}\n" if not short else "{node|short}\n"
-        res = self.hg_command("heads","--template", template)
+        res = self.hg_command("heads", "--template", template)
         return [head for head in res.split("\n") if head]
 
     def hg_merge(self, reference, preview=False):
-        """Merge reference to current, or with 'preview' set to True get a list 
-        of revision numbers containing all revisions that would have been merged"""
+        """
+            Merge reference to current.
+
+            With 'preview' set to True get a list of revision numbers
+            containing all revisions that would have been merged.
+        """
         if not preview:
             return self.hg_command("merge", reference)
         else:
@@ -184,11 +230,12 @@ class Repo(object):
             revs = []
             for row in out:
                 match = revno_re.match(row)
-                if match: revs.append(match.group(1)) 
-            return rev
-        
+                if match:
+                    revs.append(match.group(1))
+            return revs
+
     def hg_revert(self, all=False, *files):
-        """Revert repository"""        
+        """Revert repository."""
         if all:
             cmd = ["revert", "--all"]
         else:
@@ -196,13 +243,16 @@ class Repo(object):
         self.hg_command(*cmd)
 
     def hg_node(self):
-        """Get the full node id of the current revision"""
-        res = self.hg_command("log", "-r", self.hg_id(), "--template", "{node}")
+        """Get the full node id of the current revision."""
+        res = self.hg_command("log", "-r", self.hg_id(),
+                              "--template", "{node}")
         return res.strip()
 
-    def hg_commit(self, message, user=None, date=None, files=[], close_branch=False):
+    def hg_commit(self, message, user=None, date=None, files=[],
+                  close_branch=False):
         """Commit changes to the repository."""
-        userspec = "-u" + user if user else "-u" + self.user if self.user else ""
+        userspec = "-u" + user if user \
+            else "-u" + self.user if self.user else ""
         datespec = "-d" + date if date else ""
         close = "--close-branch" if close_branch else ""
         args = [close, userspec, datespec] + files
@@ -212,21 +262,44 @@ class Repo(object):
         args = [arg for arg in args if arg]
         self.hg_command("commit", "-m", message, *args)
 
-    def hg_log(self, identifier=None, limit=None, template=None, branch=None, **kwargs):
+    def hg_push(self, destination=None):
+        """Push changes from this repo."""
+        if destination is None:
+            self.hg_command("push")
+        else:
+            self.hg_command("push", destination)
+
+    def hg_pull(self, source=None):
+        """Pull changes to this repo."""
+        if source is None:
+            self.hg_command("pull")
+        else:
+            self.hg_command("pull", source)
+
+    def hg_log(self, identifier=None, limit=None, template=None,
+               branch=None, **kwargs):
         """Get repositiory log."""
         cmds = ["log"]
-        if identifier: cmds += ['-r', str(identifier)]
-        if branch: cmds += ['-b', str(branch)]
-        if limit: cmds += ['-l', str(limit)]
-        if template: cmds += ['--template', str(template)]
+        if identifier:
+            cmds += ['-r', str(identifier)]
+        if branch:
+            cmds += ['-b', str(branch)]
+        if limit:
+            cmds += ['-l', str(limit)]
+        if template:
+            cmds += ['--template', str(template)]
         if kwargs:
             for key in kwargs:
                 cmds += [key, kwargs[key]]
-        return self.hg_command(*cmds)
+        log = self.hg_command(*cmds)
+        return log
 
     def hg_branch(self, branch_name=None):
-        """ Creates a branch of branch_name isn't None
-            If not, returns the current branch name.
+        """
+            Create a branch or get a branch name.
+
+            If branch_name is not None, the branch is created.
+            Otherwise the current branch name is returned.
         """
         args = []
         if branch_name:
@@ -235,7 +308,7 @@ class Repo(object):
         return branch.strip()
 
     def get_branches(self):
-        """ Returns a list of branches from the repo, including versions """
+        """ Returns a list of branches from the repo, including versions."""
         branches = self.hg_command("branches")
         branch_list = branches.strip().split("\n")
         values = []
@@ -245,7 +318,7 @@ class Repo(object):
                 continue
             name = b[0].strip()
             version = b[-1].strip()
-            values.append({'name':name, 'version':version})
+            values.append({'name': name, 'version': version})
         return values
 
     def get_branch_names(self):
@@ -264,14 +337,16 @@ class Repo(object):
         return values
 
     def hg_diff(self, rev_a=None, rev_b=None, filenames=None):
-        """Get a unified diff as returned by 'hg diff'
-        rev_a and rev_b are passed as -r <rev> arguments to the call,
-        and filenames are expected to be an iterable of file names.
-
-        Returns a list of dicts where every dict has a 'filename' and 'diff' field,
-        with diff being the complete diff for the file including header (diff -r xxxx -r xxx...).
         """
+            Get a unified diff as returned by 'hg diff'.
 
+            rev_a and rev_b are passed as -r <rev> arguments to the call,
+            filenames are expected to be an iterable of file names.
+
+            Returns a list of dicts where every dict has a 'filename'
+            and 'diff' field, where with diff being the complete diff
+            for the file including header (diff -r xxxx -r xxx...).
+        """
         cmds = ['diff']
         for rev in (rev_a, rev_b):
             if not rev is None:
@@ -280,37 +355,40 @@ class Repo(object):
         if not filenames is None:
             cmds += list(filenames)
 
-        result =  self.hg_command(*cmds)
+        result = self.hg_command(*cmds)
         diffs = []
         if result:
             filere = re.compile("^diff .* (\S+)$")
             for line in result.split('\n'):
-               
                 match = filere.match(line)
                 if match:
-                    diffs.append({'filename': match.groups()[0],  'diff': ''})
+                    diffs.append({'filename': match.groups()[0], 'diff': ''})
                 diffs[-1]['diff'] += line + '\n'
         return diffs
 
     def hg_status(self, empty=False, clean=False):
-        """Get repository status.
-        Returns a dict containing a *change char* -> *file list* mapping, where 
-        change char is in::
+        """
+            Get repository status.
 
-         A, M, R, !, ?
+            Returns a dict containing a *change char* -> *file list*
+            mapping, where change char is in::
 
-        Example - added one.txt, modified a_folder/two.txt and three.txt::
+             A, M, R, !, ?
 
-         {'A': ['one.txt'], 'M': ['a_folder/two.txt', 'three.txt'],
-         '!': [], '?': [], 'R': []}
+            Example after adding one.txt, modifying a_folder/two.txt
+            and three.txt::
 
-        If empty is set to non-False value, don't add empty lists.
-        If clean is set to non-False value, add clean files as well (-A)
+             {'A': ['one.txt'], 'M': ['a_folder/two.txt', 'three.txt'],
+             '!': [], '?': [], 'R': []}
+
+            If empty is set to non-False value, don't add empty lists.
+            If clean is set to non-False value, add clean files as well (-A)
         """
         cmds = ['status']
-        if clean: cmds.append('-A')        
+        if clean:
+            cmds.append('-A')
         out = self.hg_command(*cmds).strip()
-        #default empty set
+        # default empty set
         if empty:
             changes = {}
         else:
@@ -318,39 +396,46 @@ class Repo(object):
             if clean:
                 changes['C'] = []
 
-        if not out: return changes
+        if not out:
+            return changes
         lines = out.split("\n")
         status_split = re.compile("^(.) (.*)$")
 
         for change, path in [status_split.match(x).groups() for x in lines]:
             changes.setdefault(change, []).append(path)
         return changes
-        
-    rev_log_tpl = '\{"node":"{node|short}","rev":"{rev}","author":"{author|urlescape}","branch":"{branches}","parents":"{parents}","date":"{date|isodate}","tags":"{tags}","desc":"{desc|urlescape}\"}\n'
+
+    rev_log_tpl = (
+        '\{"node":"{node|short}","rev":"{rev}","author":"{author|urlescape}",'
+        '"branch":"{branches}","parents":"{parents}","date":"{date|isodate}",'
+        '"tags":"{tags}","desc":"{desc|urlescape}\"}\n'
+    )
 
     def revision(self, identifier):
-        """Get the identified revision as a Revision object"""
-
-        out = self.hg_log(identifier=str(identifier), 
-                                     template=self.rev_log_tpl)
-                
-        return Revision(out)   
+        """Get the identified revision as a Revision object."""
+        out = self.hg_log(identifier=str(identifier),
+                          template=self.rev_log_tpl)
+        return Revision(out)
 
     def revisions(self, slice_):
         """Retruns a list of Revision objects for the given slice"""
-        out = self.hg_log(identifier=":".join([str(x)for x in (slice_.start, slice_.stop)]), 
-                                             template=self.rev_log_tpl)
-                        
+        id = ":".join([str(x) for x in (slice_.start, slice_.stop)])
+        out = self.hg_log(identifier=id,
+                          template=self.rev_log_tpl)
+
         revs = []
         for entry in out.split('\n')[:-1]:
             revs.append(Revision(entry))
 
-        return revs      
-    
+        return revs
+
     def read_config(self):
-        """Read the configuration as seen with 'hg showconfig'
-        Is called by __init__ - only needs to be called explicitly
-        to reflect changes made since instantiation"""
+        """
+            Read the configuration as seen with 'hg showconfig'.
+
+            Is called by __init__ - only needs to be called explicitly
+            to reflect changes made since instantiation.
+        """
         res = self.hg_command("showconfig")
         cfg = {}
         for row in res.split("\n"):
@@ -362,33 +447,38 @@ class Repo(object):
         return cfg
 
     def config(self, section, key):
-        """Return the value of a configuration variable"""
-        if not self.cfg: 
+        """Return the value of a configuration variable."""
+        if not self.cfg:
             self.cfg = self.read_config()
         return self.cfg.get(section, {}).get(key, None)
-    
+
     def configbool(self, section, key):
-        """Return a config value as a boolean value.
-        Empty values, the string 'false' (any capitalization),
-        and '0' are considered False, anything else True"""
-        if not self.cfg: 
+        """
+            Return a config value as a boolean value.
+
+            Empty values, the string 'false' (any capitalization),
+            and '0' are considered False, anything else is True
+        """
+        if not self.cfg:
             self.cfg = self.read_config()
         value = self.cfg.get(section, {}).get(key, None)
-        if not value: 
+        if not value:
             return False
-        if (value == "0" 
-            or value.upper() == "FALSE"
-            or value.upper() == "None"): 
+        if value == "0" or value.upper() == "FALSE" or value.upper() == "None":
             return False
         return True
 
     def configlist(self, section, key):
-        """Return a config value as a list; will try to create a list
-        delimited by commas, or whitespace if no commas are present"""
-        if not self.cfg: 
+        """
+            Return a config value as a list.
+
+            Will try to create a list delimited by commas, or whitespace if
+            no commas are present.
+        """
+        if not self.cfg:
             self.cfg = self.read_config()
         value = self.cfg.get(section, {}).get(key, None)
-        if not value: 
+        if not value:
             return []
         if value.count(","):
             return value.split(",")
@@ -404,7 +494,21 @@ class Repo(object):
 
     @classmethod
     def hg_clone(cls, url, path, *args):
-        """Clone repository at given `url` to `path`,
-        then return repo object to `path`."""
+        """
+            Clone repository at given `url` to `path`, then return
+            repo object to `path`.
+        """
         Repo.command(".", os.environ, "clone", url, path, *args)
         return Repo(path)
+
+    @classmethod
+    def hg_root(self, path):
+        """
+            Return the root (top) of the path.
+
+            When no path is given, current working directory is used.
+            Raises HgException when no repo is available.
+        """
+        if path is None:
+            path = os.getcwd()
+        return Repo.command(path, os.environ, "root").strip("\n +")

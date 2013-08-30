@@ -10,7 +10,7 @@ interface instead of the internal Mercurial API. The rationale for
 this is twofold: the internal API is unstable, and it is GPL.
 
 hgapi works for all versions of Mercurial, and will instantly reflect any
-changes to the repository (including hgrc). It also has a really 
+changes to the repository (including hgrc). It also has a really
 permissive license (do whatever you want, don't blame me).
 
 For example of code that uses this API, take a look at
@@ -19,32 +19,36 @@ exclusively. Add any feature requests or bugs found to the issue tracker.
 
 So far, the API supports::
 
- hg init
- hg id
  hg add [<file>]
  hg addremove [<file>]
- hg commit [files] [-u name] [--close-branch]
- hg update <rev>
- hg heads
- hg log
- hg remove
- hg status
- hg merge (fails on conflict)
- hg revert
  hg branch
  hg branches
+ hg clone
+ hg commit [files] [-u name] [--close-branch]
+ hg diff
+ hg heads
+ hg id
+ hg init
+ hg log
+ hg merge (fails on conflict)
+ hg pull [<source>]
+ hg push [<destination>]
+ hg remove
+ hg rename <source> <destination>
+ hg revert
+ hg root
+ hg status
  hg tag
  hg tags
- hg diff
+ hg update <rev>
  hg version
- hg clone
- hg move <source> <destination>
 
 You also have access to the configuration (config, configbool,
-configlist) just as in the internal Mercurial API. The repository 
+configlist) just as in the internal Mercurial API. The repository
 supports slicing and indexing notation.
 
 Example usage::
+
     >>> import hgapi
     >>> repo = hgapi.Repo("test_hgapi")  # existing folder
     >>> repo.hg_init()
@@ -58,7 +62,7 @@ Example usage::
     >>> diff = repo.hg_diff()  # returns list of diffs
     >>> assert diff[0]['filename'] == 'file.txt'
     >>> assert '+Added line' in diff[0]['diff']
-    
+
 Installation
 ============
 
@@ -78,7 +82,7 @@ installed, and then run::
 License
 =======
 
-Copyright (c) 2011, Fredrik Håård 
+Copyright (c) 2011, Fredrik Håård
 
 Do whatever you want, don't blame me. You may also use this software
 as licensed under the MIT or BSD licenses, or the more permissive license below:
