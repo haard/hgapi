@@ -276,6 +276,13 @@ class Repo(object):
         else:
             self.hg_command("pull", source)
 
+    def hg_paths(self):
+        """Get remote repositories."""
+        remotes = self.hg_command("paths").split("\n")
+        remotes = [line.split(" = ") for line in remotes if line != ""]
+
+        return map(lambda e: dict(zip(['name', 'path'], e)), remotes)
+
     def hg_log(self, identifier=None, limit=None, template=None,
                branch=None, **kwargs):
         """Get repositiory log."""
