@@ -283,6 +283,24 @@ class Repo(object):
 
         return dict(remotes_list)
 
+    def hg_tip(self):
+        """Get the repository's tip as a dictionary."""
+        tip = self.hg_command(
+            "tip",
+            "--template",
+            "{node}\n{author}\n{tags}\n{branch}\n{date}\n{files}\n{desc}\n"
+        ).split("\n")
+
+        return {
+            'node': tip[0],
+            'author': tip[1],
+            'tag': tip[2],
+            'branch': tip[3],
+            'date': tip[4],
+            'files': tip[5].split(),
+            'description': ''.join(tip[6:])
+        }
+
     def hg_log(self, identifier=None, limit=None, template=None,
                branch=None, **kwargs):
         """Get repositiory log."""
