@@ -288,7 +288,8 @@ class Repo(object):
         tip = self.hg_command(
             "tip",
             "--template",
-            "{node}\n{author}\n{tags}\n{branch}\n{date}\n{files}\n{desc}\n"
+            "{node}\n{author}\n{tags}\n{branch}\n"
+            "{date|isodate}\n{files}\n{desc}\n"
         ).split("\n")
 
         return {
