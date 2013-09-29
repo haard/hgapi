@@ -445,6 +445,11 @@ class TestHgAPI(unittest.TestCase):
         paths = self.repo.hg_paths()
         self.assertEquals(paths, {})
 
+        paths = self.clone.hg_paths()
+        self.assertNotEquals(paths, {})
+
+        self.assertTrue("default" in paths)
+        self.assertTrue(paths['default'].endswith('test'))
 
 def test_doc():
     # prepare for doctest
