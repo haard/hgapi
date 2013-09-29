@@ -441,6 +441,10 @@ class TestHgAPI(unittest.TestCase):
         # non existing repo
         self.assertRaises(hgapi.HgException, hgapi.Repo.hg_root, "./whatever")
 
+    def test_411_paths(self):
+        paths = self.repo.hg_paths()
+        self.assertEquals(paths, {})
+
 
 def test_doc():
     # prepare for doctest
