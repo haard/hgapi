@@ -31,6 +31,7 @@ So far, the API supports::
  hg init
  hg log
  hg merge (fails on conflict)
+ hg paths
  hg pull [<source>]
  hg push [<destination>]
  hg remove
