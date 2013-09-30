@@ -287,6 +287,21 @@ class Repo(object):
         """Get the repository's tip as a dictionary."""
         return self.revision("tip")
 
+    def hg_outgoing(self, remote="default"):
+        out = self.hg_command(
+            "outgoing",
+            remote,
+            "--template",
+            self.rev_log_tpl
+        ).split("\n")
+
+        revisions = []
+        for revision in out[3:]:
+            if revision != "":
+                revisions.append(Revision(revision))
+
+        return revisions
+
     def hg_log(self, identifier=None, limit=None, template=None,
                branch=None, **kwargs):
         """Get repositiory log."""
