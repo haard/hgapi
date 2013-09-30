@@ -451,6 +451,16 @@ class TestHgAPI(unittest.TestCase):
         self.assertTrue("default" in paths)
         self.assertTrue(paths['default'].endswith('test'))
 
+    def test_412_outgoing(self):
+        # modify file in the cloned repository and commit it
+        with open("./test-clone/cities/ghent.txt", "a") as out:
+            out.write("amsterdam")
+        self.clone.hg_commit("[CLONE] Modified file")
+
+        outgoing = self.clone.hg_outgoing()
+        self.assertEquals(1, len(outgoing))
+        self.assertEquals("[CLONE] Modified file", outgoing[0].desc)
+
 def test_doc():
     # prepare for doctest
     os.mkdir("./test_hgapi")
