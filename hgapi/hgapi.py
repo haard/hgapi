@@ -283,10 +283,6 @@ class Repo(object):
 
         return dict(remotes_list)
 
-    def hg_tip(self):
-        """Get the repository's tip as a dictionary."""
-        return self.revision("tip")
-
     def hg_outgoing(self, remote="default"):
         """Get outgoing changesets for a certain remote."""
         try:
