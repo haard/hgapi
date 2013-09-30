@@ -466,6 +466,9 @@ class TestHgAPI(unittest.TestCase):
         outgoing = self.clone.hg_outgoing()
         self.assertEquals(0, len(outgoing))
 
+        # a repository without remote should throw an exception
+        self.assertRaises(hgapi.HgException, self.repo.hg_outgoing)
+
     def test_413_incoming(self):
         with open("./test/cities/ghent.txt", "a") as out:
             out.write("amstelveen")

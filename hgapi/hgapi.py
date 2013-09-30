@@ -285,6 +285,9 @@ class Repo(object):
 
     def hg_outgoing(self, remote="default"):
         """Get outgoing changesets for a certain remote."""
+        if remote not in self.hg_paths().keys():
+            raise HgException("No such remote repository")
+
         try:
             result = self.hg_command(
                 "outgoing",
