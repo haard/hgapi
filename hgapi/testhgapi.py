@@ -485,6 +485,9 @@ class TestHgAPI(unittest.TestCase):
         incoming = self.clone.hg_incoming()
         self.assertEquals(0, len(incoming))
 
+        # a repository without remote should throw an exception
+        self.assertRaises(hgapi.HgException, self.repo.hg_incoming)
+
 def test_doc():
     # prepare for doctest
     os.mkdir("./test_hgapi")
