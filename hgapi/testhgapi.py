@@ -461,6 +461,11 @@ class TestHgAPI(unittest.TestCase):
         self.assertEquals(1, len(outgoing))
         self.assertEquals("[CLONE] Modified file", outgoing[0].desc)
 
+        # push and check outgoing changes again
+        self.clone.hg_push()
+        outgoing = self.clone.hg_outgoing()
+        self.assertEquals(0, len(outgoing))
+
 def test_doc():
     # prepare for doctest
     os.mkdir("./test_hgapi")
