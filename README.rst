@@ -28,9 +28,11 @@ So far, the API supports::
  hg diff
  hg heads
  hg id
+ hg incoming
  hg init
  hg log
  hg merge (fails on conflict)
+ hg outgoing
  hg paths
  hg pull [<source>]
  hg push [<destination>]
