@@ -299,12 +299,7 @@ class Repo(object):
             return []
 
         changesets = [change for change in result if change.startswith("{")]
-        revisions = []
-
-        for revision in changesets:
-            revisions.append(Revision(revision))
-
-        return revisions
+        return map(lambda revision: Revision(revision), changesets)
 
     def hg_incoming(self, remote="default"):
         """Get incoming changesets for a certain remote."""
@@ -322,12 +317,7 @@ class Repo(object):
             return []
 
         changesets = [change for change in result if change.startswith("{")]
-        revisions = []
-
-        for revision in changesets:
-            revisions.append(Revision(revision))
-
-        return revisions
+        return map(lambda revision: Revision(revision), changesets)
 
     def hg_log(self, identifier=None, limit=None, template=None,
                branch=None, **kwargs):
