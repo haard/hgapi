@@ -288,17 +288,22 @@ class Repo(object):
         return self.revision("tip")
 
     def hg_outgoing(self, remote="default"):
-        out = self.hg_command(
-            "outgoing",
-            remote,
-            "--template",
-            self.rev_log_tpl
-        ).split("\n")
+        """Get outgoing changesets for a certain remote."""
+        try:
+            out = self.hg_command(
+                "outgoing",
+                remote,
+                "--template",
+                self.rev_log_tpl
+            ).split("\n")
+        except HgException:
+            return []
 
+        changesets = [changeset for changeset in out[3:] if changeset != ""]
         revisions = []
-        for revision in out[3:]:
-            if revision != "":
-                revisions.append(Revision(revision))
+
+        for revision in changesets:
+            revisions.append(Revision(revision))
 
         return revisions
 
