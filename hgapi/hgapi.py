@@ -283,14 +283,13 @@ class Repo(object):
 
         return dict(remotes_list)
 
-    def hg_outgoing(self, remote="default"):
-        """Get outgoing changesets for a certain remote."""
+    def __get_remote_changes(self, command, remote):
         if remote not in self.hg_paths().keys():
             raise HgException("No such remote repository")
 
         try:
             result = self.hg_command(
-                "outgoing",
+                command,
                 remote,
                 "--template",
                 self.rev_log_tpl
@@ -300,24 +299,14 @@ class Repo(object):
 
         changesets = [change for change in result if change.startswith("{")]
         return map(lambda revision: Revision(revision), changesets)
+
+    def hg_outgoing(self, remote="default"):
+        """Get outgoing changesets for a certain remote."""
+        return self.__get_remote_changes("outgoing", remote)
 
     def hg_incoming(self, remote="default"):
         """Get incoming changesets for a certain remote."""
-        if remote not in self.hg_paths().keys():
-            raise HgException("No such remote repository")
-
-        try:
-            result = self.hg_command(
-                "incoming",
-                remote,
-                "--template",
-                self.rev_log_tpl
-            ).split("\n")
-        except HgException:
-            return []
-
-        changesets = [change for change in result if change.startswith("{")]
-        return map(lambda revision: Revision(revision), changesets)
+        return self.__get_remote_changes("incoming", remote)
 
     def hg_log(self, identifier=None, limit=None, template=None,
                branch=None, **kwargs):
