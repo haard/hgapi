@@ -466,6 +466,22 @@ class TestHgAPI(unittest.TestCase):
         outgoing = self.clone.hg_outgoing()
         self.assertEquals(0, len(outgoing))
 
+    def test_413_incoming(self):
+        with open("./test/cities/ghent.txt", "a") as out:
+            out.write("amstelveen")
+        self.repo.hg_commit("[CLONE] Modified file again")
+
+        incoming = self.clone.hg_incoming()
+        self.assertEquals(1, len(incoming))
+        self.assertEquals("[CLONE] Modified file again", incoming[0].desc)
+
+        # pull changes, update and check incoming again
+        self.clone.hg_pull()
+        self.clone.hg_update("tip")
+
+        incoming = self.clone.hg_incoming()
+        self.assertEquals(0, len(incoming))
+
 def test_doc():
     # prepare for doctest
     os.mkdir("./test_hgapi")
