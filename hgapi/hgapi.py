@@ -295,7 +295,7 @@ class Repo(object):
         except HgException:
             return []
 
-        changesets = [changeset for changeset in result[3:] if changeset != ""]
+        changesets = [change for change in result if change.startswith("{")]
         revisions = []
 
         for revision in changesets:
