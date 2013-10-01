@@ -298,7 +298,7 @@ class Repo(object):
             return []
 
         changesets = [change for change in result if change.startswith("{")]
-        return map(lambda revision: Revision(revision), changesets)
+        return list(map(lambda revision: Revision(revision), changesets))
 
     def hg_outgoing(self, remote="default"):
         """Get outgoing changesets for a certain remote."""
