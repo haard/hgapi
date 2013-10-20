@@ -450,7 +450,7 @@ class TestHgAPI(unittest.TestCase):
             out.write("enjoy a new file")
         self.repo.hg_add("file3.txt")
 
-        self.repo.hg_commit("éàô".encode('utf-8'),
+        self.repo.hg_commit("éàô",
                             user="F. Håård",
                             date="10/10/11 UTC")
 
