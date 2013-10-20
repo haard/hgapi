@@ -1,12 +1,10 @@
-from __future__ import with_statement
+#  -*- encoding: utf-8 -*-
+from __future__ import with_statement, unicode_literals
 
 import unittest
 import doctest
-
 import os
-
 import shutil
-
 import hgapi
 
 
@@ -337,10 +335,6 @@ class TestHgAPI(unittest.TestCase):
     def test_220_LogWithBranch(self):
         default = self.repo.hg_log(branch='default')
         branch = self.repo.hg_log(branch='test_branch')
-
-        print(default)
-        print(branch)
-
         self.assertTrue("commit test_branch" in branch)
         self.assertFalse("commit test_branch" in default)
 
@@ -451,14 +445,29 @@ class TestHgAPI(unittest.TestCase):
         self.assertTrue("default" in paths)
         self.assertTrue(paths['default'].endswith('test'))
 
+    def test_420_CommitWithNonAsciiCharacters(self):
+        with open("test/file3.txt", "w") as out:
+            out.write("enjoy a new file")
+        self.repo.hg_add("file3.txt")
+
+        self.repo.hg_commit("éàô".encode('utf-8'),
+                            user="F. Håård",
+                            date="10/10/11 UTC")
+
+        rev = self.repo["tip"]
+
+        self.assertEquals(rev.desc, "éàô")
+        self.assertEquals(rev.author, "F. Håård")
+
+
 def test_doc():
     # prepare for doctest
     os.mkdir("./test_hgapi")
     with open("test_hgapi/file.txt", "w") as target:
-        w = target.write("stuff")
+        target.write("stuff")
     try:
         # run doctest
-        res = doctest.testfile("../README.rst")
+        doctest.testfile("../README.rst")
     finally:
         # cleanup
         shutil.rmtree("test_hgapi")

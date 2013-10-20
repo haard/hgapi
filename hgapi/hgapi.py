@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, unicode_literals, with_statement
-from subprocess import Popen, STDOUT, PIPE
+from subprocess import Popen, PIPE
 
 try:
     from urllib import unquote
@@ -10,6 +10,7 @@ except ImportError:  # python 3
 import re
 import os.path
 import os
+import sys
 
 try:
     import json  # for reading logs
@@ -44,7 +45,11 @@ class Revision(object):
         rev = json.loads(json_log)
 
         for key in rev.keys():
-            self.__setattr__(key, unquote(rev[key]))
+            if sys.version_info.major < 3:
+                _value = unquote(rev[key].encode("ascii")).decode("utf-8")
+            else:
+                _value = unquote(rev[key])
+            self.__setattr__(key, _value)
         self.rev = int(self.rev)
         if not self.branch:
             self.branch = 'default'
