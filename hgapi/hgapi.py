@@ -85,13 +85,14 @@ class Repo(object):
 
             Raise on error.
         """
-        proc = Popen(["hg", "--cwd", path, "--encoding", "UTF-8"] + list(args),
+        cmd = ["hg", "--cwd", path, "--encoding", "UTF-8"] + list(args)
+        proc = Popen(cmd,
                      stdout=PIPE, stderr=PIPE, env=env)
 
         out, err = [x.decode("utf-8") for x in proc.communicate()]
 
         if proc.returncode:
-            cmd = (" ".join(["hg", "--cwd", path] + list(args)))
+            cmd = " ".join(cmd)
             raise HgException("Error running %s:\n\" + "
                               "tErr: %s\n\t"
                               "Out: %s\n\t"
