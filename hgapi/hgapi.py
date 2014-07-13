@@ -387,10 +387,10 @@ class Repo(object):
         """
         cmds = ['diff']
         for rev in (rev_a, rev_b):
-            if not rev is None:
+            if rev is not None:
                 cmds += ['-r', rev]
 
-        if not filenames is None:
+        if filenames is not None:
             cmds += list(filenames)
 
         result = self.hg_command(*cmds)
