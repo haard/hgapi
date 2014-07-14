@@ -8,7 +8,6 @@ except ImportError:  # python 3
     from urllib.parse import unquote
 
 import re
-import os.path
 import os
 import sys
 
@@ -373,6 +372,51 @@ class Repo(object):
                 name = name.strip()
                 values.append(name)
         return values
+
+    BOOKMARK_LIST = 0
+    BOOKMARK_CREATE = 1
+    BOOKMARK_DELETE = 2
+    BOOKMARK_RENAME = 3
+    BOOKMARK_INACTIVE = 4
+
+    def hg_bookmarks(self, action=BOOKMARK_LIST, name=None, newname=None,
+                     revision=None, force=False):
+        cmds = ['bookmarks']
+        if force:
+            cmds += ['--force']
+        if revision:
+            cmds += ['--rev', str(revision)]
+        if action == Repo.BOOKMARK_LIST:
+            out = self.hg_command(*cmds)
+            bookmarks = []
+            for line in out.split('\n'):
+                if line:
+                    # active/inactive
+                    if line.strip()[0] == '*':
+                        bookmark = [True]
+                        line = line[3:]
+                    else:
+                        bookmark = [False]
+                    # name and identifier
+                    line.split()
+                    bookmark += [line.split()[0].strip(), line.split()[1]]
+                    bookmarks += [bookmark]
+            return bookmarks
+        elif action == Repo.BOOKMARK_INACTIVE:
+            cmds += ['--inactive']
+            if name:
+                cmds += [name]
+            return self.hg_command(*cmds)
+        elif name is not None:
+            if action == Repo.BOOKMARK_DELETE:
+                cmds += ['--delete', name]
+                return self.hg_command(*cmds)
+            elif action == Repo.BOOKMARK_RENAME and newname is not None:
+                cmds += ['--rename', name, newname]
+                return self.hg_command(*cmds)
+            elif action == Repo.BOOKMARK_CREATE:
+                cmds += [name]
+                return self.hg_command(*cmds)
 
     def hg_diff(self, rev_a=None, rev_b=None, filenames=None):
         """

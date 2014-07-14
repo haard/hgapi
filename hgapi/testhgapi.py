@@ -496,6 +496,9 @@ class TestHgAPI(unittest.TestCase):
         self.assertEquals(rev.desc, "éàô")
         self.assertEquals(rev.author, "F. Håård")
 
+    def test_430_Bookmarks(self):
+        pass
+
 
 def test_doc():
     # prepare for doctest
