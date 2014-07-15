@@ -21,6 +21,7 @@ So far, the API supports::
 
  hg add [<file>]
  hg addremove [<file>]
+ hg bookmarks [-r rev] [-f] [-m name newname | -d name | -i name | name ]
  hg branch
  hg branches
  hg clone
