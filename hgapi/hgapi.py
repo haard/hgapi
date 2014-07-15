@@ -389,18 +389,19 @@ class Repo(object):
         if action == Repo.BOOKMARK_LIST:
             out = self.hg_command(*cmds)
             bookmarks = []
-            for line in out.split('\n'):
-                if line:
-                    # active/inactive
-                    if line.strip()[0] == '*':
-                        bookmark = [True]
-                        line = line[3:]
-                    else:
-                        bookmark = [False]
-                    # name and identifier
-                    line.split()
-                    bookmark += [line.split()[0].strip(), line.split()[1]]
-                    bookmarks += [bookmark]
+            if out.startswith(" "):  # handles "no bookmarks set" reply
+                for line in out.split('\n'):
+                    if line:
+                        # active/inactive
+                        if line.strip()[0] == '*':
+                            bookmark = [True]
+                            line = line[3:]
+                        else:
+                            bookmark = [False]
+                        # name and identifier
+                        line.split()
+                        bookmark += [line.split()[0].strip(), line.split()[1]]
+                        bookmarks += [bookmark]
             return bookmarks
         elif action == Repo.BOOKMARK_INACTIVE:
             cmds += ['--inactive']
