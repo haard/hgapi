@@ -93,10 +93,10 @@ class Repo(object):
 
         if proc.returncode:
             cmd = " ".join(cmd)
-            raise HgException("Error running %s:\n\" + "
-                              "tErr: %s\n\t"
-                              "Out: %s\n\t"
-                              "Exit: %s"
+            raise HgException("Error running %s:\n" 
+                              "\tErr: %s\n" 
+                              "\tOut: %s\n" 
+                              "\tExit: %s"
                               % (cmd, err, out, proc.returncode),
                               exit_code=proc.returncode)
 
