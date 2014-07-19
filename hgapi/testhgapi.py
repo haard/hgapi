@@ -496,6 +496,41 @@ class TestHgAPI(unittest.TestCase):
         self.assertEquals(rev.desc, "éàô")
         self.assertEquals(rev.author, "F. Håård")
 
+    def test_430_Bookmarks(self):
+        # check no bookmarks
+        self.assertListEqual(self.repo.hg_bookmarks(), [])
+        empty_list = self.repo.hg_bookmarks(action=self.repo.BOOKMARK_LIST)
+        self.assertListEqual(empty_list, [])
+        # create bookmark at tip (revision 23:somevalue)
+        self.repo.hg_bookmarks(action=self.repo.BOOKMARK_CREATE,
+                               name="foo")
+        # [True, 'foo', '23:somevalue']
+        self.assertTrue(self.repo.hg_bookmarks()[0][0])
+        self.assertEqual(self.repo.hg_bookmarks()[0][1], 'foo')
+        self.assertTrue('23:' in self.repo.hg_bookmarks()[0][2])
+        # create bookmark at '10:somevalue' named 'bar'
+        self.repo.hg_bookmarks(action=self.repo.BOOKMARK_CREATE,
+                               name="bar", revision=10)
+        self.assertFalse(self.repo.hg_bookmarks()[0][0])
+        self.assertEqual(self.repo.hg_bookmarks()[0][1], 'bar')
+        self.assertTrue('10:' in self.repo.hg_bookmarks()[0][2])
+        # rename foo to fizz
+        self.repo.hg_bookmarks(action=self.repo.BOOKMARK_RENAME,
+                               name='foo', newname='fizz')
+        self.assertTrue(self.repo.hg_bookmarks()[1][0])
+        self.assertEqual(self.repo.hg_bookmarks()[1][1], 'fizz')
+        self.assertTrue('23:' in self.repo.hg_bookmarks()[1][2])
+        # make fizz inactive
+        self.repo.hg_bookmarks(action=self.repo.BOOKMARK_INACTIVE,
+                               name='fizz')
+        self.assertFalse(self.repo.hg_bookmarks()[1][0])
+        self.assertEqual(self.repo.hg_bookmarks()[1][1], 'fizz')
+        self.assertTrue('23:' in self.repo.hg_bookmarks()[1][2])
+        # delete fizz
+        self.repo.hg_bookmarks(action=self.repo.BOOKMARK_DELETE,
+                               name='fizz')
+        self.assertTrue(len(self.repo.hg_bookmarks()) == 1)
+
 
 def test_doc():
     # prepare for doctest
