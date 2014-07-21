@@ -8,7 +8,6 @@ except ImportError:  # python 3
     from urllib.parse import unquote
 
 import re
-import os.path
 import os
 import sys
 
@@ -93,10 +92,10 @@ class Repo(object):
 
         if proc.returncode:
             cmd = " ".join(cmd)
-            raise HgException("Error running %s:\n\" + "
-                              "tErr: %s\n\t"
-                              "Out: %s\n\t"
-                              "Exit: %s"
+            raise HgException("Error running %s:\n"
+                              "\tErr: %s\n"
+                              "\tOut: %s\n"
+                              "\tExit: %s"
                               % (cmd, err, out, proc.returncode),
                               exit_code=proc.returncode)
 
@@ -374,6 +373,52 @@ class Repo(object):
                 values.append(name)
         return values
 
+    BOOKMARK_LIST = 0
+    BOOKMARK_CREATE = 1
+    BOOKMARK_DELETE = 2
+    BOOKMARK_RENAME = 3
+    BOOKMARK_INACTIVE = 4
+
+    def hg_bookmarks(self, action=BOOKMARK_LIST, name=None, newname=None,
+                     revision=None, force=False):
+        cmds = ['bookmarks']
+        if force:
+            cmds += ['--force']
+        if revision:
+            cmds += ['--rev', str(revision)]
+        if action == Repo.BOOKMARK_LIST:
+            out = self.hg_command(*cmds)
+            bookmarks = []
+            if out.startswith(" "):  # handles "no bookmarks set" reply
+                for line in out.split('\n'):
+                    if line:
+                        # active/inactive
+                        if line.strip()[0] == '*':
+                            bookmark = [True]
+                            line = line[3:]
+                        else:
+                            bookmark = [False]
+                        # name and identifier
+                        line.split()
+                        bookmark += [line.split()[0].strip(), line.split()[1]]
+                        bookmarks += [bookmark]
+            return bookmarks
+        elif action == Repo.BOOKMARK_INACTIVE:
+            cmds += ['--inactive']
+            if name:
+                cmds += [name]
+            return self.hg_command(*cmds)
+        elif name is not None:
+            if action == Repo.BOOKMARK_DELETE:
+                cmds += ['--delete', name]
+                return self.hg_command(*cmds)
+            elif action == Repo.BOOKMARK_RENAME and newname is not None:
+                cmds += ['--rename', name, newname]
+                return self.hg_command(*cmds)
+            elif action == Repo.BOOKMARK_CREATE:
+                cmds += [name]
+                return self.hg_command(*cmds)
+
     def hg_diff(self, rev_a=None, rev_b=None, filenames=None):
         """
             Get a unified diff as returned by 'hg diff'.
@@ -387,10 +432,10 @@ class Repo(object):
         """
         cmds = ['diff']
         for rev in (rev_a, rev_b):
-            if not rev is None:
+            if rev is not None:
                 cmds += ['-r', rev]
 
-        if not filenames is None:
+        if filenames is not None:
             cmds += list(filenames)
 
         result = self.hg_command(*cmds)
