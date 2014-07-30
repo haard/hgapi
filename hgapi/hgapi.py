@@ -348,8 +348,7 @@ class Repo(object):
         """ 
             Returns a list of branches from the repo, including versions.
 
-            If get_active_only is True, this function will return active
-            branches only
+            If get_active_only is True, then only return active branches.
         """
         branches = self.hg_command("branches")
         branch_list = branches.strip().split("\n")
