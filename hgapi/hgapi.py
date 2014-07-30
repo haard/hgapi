@@ -344,18 +344,24 @@ class Repo(object):
         branch = self.hg_command("branch", *args)
         return branch.strip()
 
-    def get_branches(self):
-        """ Returns a list of branches from the repo, including versions."""
+    def get_branches(self, get_active_only=False):
+        """ 
+            Returns a list of branches from the repo, including versions.
+
+            If get_active_only is True, this function will return active
+            branches only
+        """
         branches = self.hg_command("branches")
         branch_list = branches.strip().split("\n")
         values = []
         for branch in branch_list:
-            b = branch.partition(" ")
+            b = re.split('(\d+:[A-Za-z0-9]+)', branch)
             if not b:
                 continue
             name = b[0].strip()
-            version = b[-1].strip()
-            values.append({'name': name, 'version': version})
+            version = b[1].strip()
+            if not get_active_only or (get_active_only and 'inactive' not in b[2]):
+                values.append({'name': name, 'version': version})
         return values
 
     def get_branch_names(self):
@@ -364,7 +370,7 @@ class Repo(object):
         branch_list = branches.strip().split("\n")
         values = []
         for branch in branch_list:
-            b = branch.partition(" ")
+            b = re.split('(\d+:[A-Za-z0-9]+)', branch)
             if not b:
                 continue
             name = b[0]
