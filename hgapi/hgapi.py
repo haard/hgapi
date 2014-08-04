@@ -196,7 +196,7 @@ class Repo(object):
         """
             Get all tags from the repo.
 
-            Retruns a dict containing tag: shortnode mapping
+            Returns a dict containing tag: shortnode mapping
         """
         cmd = ['tags']
         output = self.hg_command(*cmd)
@@ -501,7 +501,7 @@ class Repo(object):
         return Revision(out)
 
     def revisions(self, slice_):
-        """Retruns a list of Revision objects for the given slice"""
+        """Returns a list of Revision objects for the given slice"""
         id = ":".join([str(x) for x in (slice_.start, slice_.stop)])
         out = self.hg_log(identifier=id,
                           template=self.rev_log_tpl)
