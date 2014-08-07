@@ -303,7 +303,27 @@ class TestHgAPI(unittest.TestCase):
         branch_names = self.repo.get_branch_names()
         self.assertEquals(len(branch_names), 2)
 
+        # Test branch name with space
+        self.assertTrue(self.repo.hg_branch('test branch with space').
+                        startswith("marked working directory as branch " +
+                        "test branch with space"))
+        self.assertEquals(self.repo.hg_branch(), "test branch with space")
+        self.repo.hg_commit("commit test branch with space")
+        self.assertEquals(self.repo.hg_branch(), "test branch with space")
+        branches = self.repo.get_branches()
+        self.assertEquals(len(branches), 3)
+        branch_names = self.repo.get_branch_names()
+        self.assertEquals(len(branch_names), 3)
+
+        # Test closing of a branch
+        self.repo.hg_commit("Closing test branch", close_branch=True)
+        branches = self.repo.get_branches()
+        self.assertEquals(len(branches), 2)
+        branch_names = self.repo.get_branch_names()
+        self.assertEquals(len(branch_names), 2)
+
     def test_200_CommitWithDates(self):
+        self.repo.hg_update("test_branch")
         rev0 = self.repo.hg_rev()
 
         with open("test/file.txt", "w+") as out:
@@ -507,7 +527,7 @@ class TestHgAPI(unittest.TestCase):
         # [True, 'foo', '23:somevalue']
         self.assertTrue(self.repo.hg_bookmarks()[0][0])
         self.assertEqual(self.repo.hg_bookmarks()[0][1], 'foo')
-        self.assertTrue('23:' in self.repo.hg_bookmarks()[0][2])
+        self.assertTrue('25:' in self.repo.hg_bookmarks()[0][2])
         # create bookmark at '10:somevalue' named 'bar'
         self.repo.hg_bookmarks(action=self.repo.BOOKMARK_CREATE,
                                name="bar", revision=10)
@@ -519,13 +539,13 @@ class TestHgAPI(unittest.TestCase):
                                name='foo', newname='fizz')
         self.assertTrue(self.repo.hg_bookmarks()[1][0])
         self.assertEqual(self.repo.hg_bookmarks()[1][1], 'fizz')
-        self.assertTrue('23:' in self.repo.hg_bookmarks()[1][2])
+        self.assertTrue('25:' in self.repo.hg_bookmarks()[1][2])
         # make fizz inactive
         self.repo.hg_bookmarks(action=self.repo.BOOKMARK_INACTIVE,
                                name='fizz')
         self.assertFalse(self.repo.hg_bookmarks()[1][0])
         self.assertEqual(self.repo.hg_bookmarks()[1][1], 'fizz')
-        self.assertTrue('23:' in self.repo.hg_bookmarks()[1][2])
+        self.assertTrue('25:' in self.repo.hg_bookmarks()[1][2])
         # delete fizz
         self.repo.hg_bookmarks(action=self.repo.BOOKMARK_DELETE,
                                name='fizz')
