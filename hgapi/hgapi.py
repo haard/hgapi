@@ -345,7 +345,7 @@ class Repo(object):
         return branch.strip()
 
     def get_branches(self):
-        """ 
+        """
             Returns a list of branches from the repo, including versions.
 
             If get_active_only is True, then only return active branches.
