@@ -83,6 +83,17 @@ installed, and then run::
 
  python setup.py install
 
+
+Development
+===========
+
+Do not hesitate to send requests, issues or perform code reviews! When developing please follow the pep8 guidelines (see http://legacy.python.org/dev/peps/pep-0008/) and do use tox to check your code::
+
+ tox
+
+Tox will make sure that hgapi runs on Python 2.7, 3.2, 3.3 and 3.4; and it will check the pep8 compliance.
+
+
 License
 =======
 
