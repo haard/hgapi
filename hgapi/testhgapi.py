@@ -304,9 +304,9 @@ class TestHgAPI(unittest.TestCase):
         self.assertEquals(len(branch_names), 2)
 
         # Test branch name with space
-        self.assertTrue(self.repo.hg_branch('test branch with space').
-                        startswith("marked working directory as branch " +
-                        "test branch with space"))
+        branch = self.repo.hg_branch('test branch with space')
+        message = "marked working directory as branch test branch with space"
+        self.assertTrue(branch.startswith(message))
         self.assertEquals(self.repo.hg_branch(), "test branch with space")
         self.repo.hg_commit("commit test branch with space")
         self.assertEquals(self.repo.hg_branch(), "test branch with space")
