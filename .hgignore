@@ -1,0 +1,8 @@
+syntax: glob
+*.pyc
+.tox
+build
+dist
+hgapi.egg-info
+original
+.idea
