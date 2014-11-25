@@ -490,6 +490,32 @@ class Repo(object):
             changes.setdefault(change, []).append(path)
         return changes
 
+    def hg_archive(self, destination, revision=None, archive_type=None):
+        """
+            Archive a repository.
+
+            Creates an archive of a single revision in the specified
+            destination.
+
+            If revision is not supplied the default is the parent of the
+            repository's working directory (tip).
+
+            If archive_type is not supplied mercurial will determine the
+            type based on the file extension. If there is no file extension
+            the default is "files".
+        """
+        cmds = ['archive']
+
+        if archive_type is not None:
+            cmds.extend(('-t', archive_type))
+
+        if revision is not None and revision != "tip":
+            cmds.extend(('-r', revision))
+
+        cmds.append(destination)
+
+        self.hg_command(*cmds)
+
     rev_log_tpl = (
         '\{"node":"{node|short}","rev":"{rev}","author":"{author|urlescape}",'
         '"branch":"{branches}","parents":"{parents}","date":"{date|isodate}",'

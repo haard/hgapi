@@ -6,6 +6,8 @@ import doctest
 import os
 import shutil
 import hgapi
+import tempfile
+import sys
 
 
 # TODO: add better logger test
@@ -550,6 +552,27 @@ class TestHgAPI(unittest.TestCase):
         self.repo.hg_bookmarks(action=self.repo.BOOKMARK_DELETE,
                                name='fizz')
         self.assertTrue(len(self.repo.hg_bookmarks()) == 1)
+
+    def test_500_Archive(self):
+        if sys.version_info.major == 3:
+            with tempfile.TemporaryDirectory() as destination:
+                self.repo.hg_archive(destination)
+                a = os.path.join(destination, "cities", "antwerp.txt")
+                with open(a, "r") as antwerp:
+                    self.assertEqual(antwerp.readline(), "antwerpen")
+                b = os.path.join(destination, "bar.txt")
+                with open(b, "r") as bar:
+                    self.assertEqual(bar.readline(), "Another sample file")
+            with tempfile.TemporaryDirectory() as destination:
+                self.repo.hg_archive(destination, revision="21")
+                antwerp = os.path.join(destination, "cities", "antwerp.txt")
+                self.assertTrue(os.path.exists(antwerp))
+                brussels = os.path.join(destination, "cities", "brussels.txt")
+                self.assertTrue(os.path.exists(brussels))
+                ghent = os.path.join(destination, "cities", "ghent.txt")
+                self.assertFalse(os.path.exists(ghent))
+        self.repo.hg_archive("test.tar.gz", revision="21")
+        self.assertTrue(os.path.exists(os.path.join("test", "test.tar.gz")))
 
 
 def test_doc():
