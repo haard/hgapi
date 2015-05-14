@@ -87,6 +87,21 @@ class TestHgAPI(unittest.TestCase):
         self.assertNotEquals(rev, rev2)
         self.assertNotEquals(hgid, hgid2)
 
+    def test_031_CommitAmend(self):
+        rev = self.repo.hg_rev()
+        hgid = self.repo.hg_id()
+
+        # write some more to file
+        with open("test/file.txt", "a+") as out:
+            out.write("added stuff after amend")
+
+        # commit and check that revision is the same
+        self.repo.hg_commit("modifying and amending", user="test", amend=True)
+        rev2 = self.repo.hg_rev()
+        hgid2 = self.repo.hg_id()
+        self.assertEquals(rev, rev2)
+        self.assertNotEquals(hgid, hgid2)
+
     def test_040_Log(self):
         rev = self.repo[0]
         self.assertEquals(rev.desc, "adding")
