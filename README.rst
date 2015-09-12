@@ -93,7 +93,18 @@ Do not hesitate to send requests, issues or perform code reviews! When developin
  tox
 
 Tox will make sure that hgapi runs on Python 2.7, 3.2, 3.3 and 3.4; and it will check the pep8 compliance.
+By contributing you agree to release the code under the license terms listed below (basically - anyone can do anything with this code). Feel free to add yourself to the contributor list in your pull request.
 
+Contributors
+============
+Fredrik Håård
+Jan Willems
+Stephen Paulger
+Andy Tang
+Thomas Röggla
+Ardo Illaste
+Ken Cochrane
+Simon Williams
 
 License
 =======
