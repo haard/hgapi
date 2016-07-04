@@ -254,19 +254,22 @@ class Repo(object):
         return res.strip()
 
     def hg_commit(self, message, user=None, date=None, files=[],
-                  close_branch=False, amend=False):
+                  close_branch=False, amend=False, message_file=None):
         """Commit changes to the repository."""
         userspec = "-u" + user if user \
             else "-u" + self.user if self.user else ""
         datespec = "-d" + date if date else ""
         close = "--close-branch" if close_branch else ""
         amendspec = "--amend" if amend else ""
+        msg = ("-m", message)
+        if message_file is not None:
+            msg = ("-l", message_file)
         args = [amendspec, close, userspec, datespec] + files
         # don't send a "" arg for userspec or close, which HG will
         # consider the files arg, committing all files instead of what
         # was passed in files kwarg
         args = [arg for arg in args if arg]
-        self.hg_command("commit", "-m", message, *args)
+        self.hg_command("commit", msg[0], msg[1], *args)
 
     def hg_push(self, destination=None):
         """Push changes from this repo."""
