@@ -80,8 +80,16 @@ class TestHgAPI(unittest.TestCase):
         with open("test/file.txt", "w+") as out:
             out.write("more stuff")
 
+        # write commit message to file
+        with open("test/file.txt", "w+") as out:
+            out.write("more stuff")
         # commit and check that changes have been made
-        self.repo.hg_commit("modifying", user="test")
+        with tempfile.NamedTemporaryFile() as commit_file:
+            commit_file.write("modifying")
+            commit_file.flush()
+            self.repo.hg_commit(
+                                None, user="test",
+                                message_file=commit_file.name)
         rev2 = self.repo.hg_rev()
         hgid2 = self.repo.hg_id()
         self.assertNotEquals(rev, rev2)
