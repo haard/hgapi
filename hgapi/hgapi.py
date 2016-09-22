@@ -74,7 +74,7 @@ class Repo(object):
         self.cfg = False
         self.user = user
 
-    _env = os.environ
+    _env = os.environ.copy()
     _env[str('LANG')] = str('en_US')
 
     @classmethod
