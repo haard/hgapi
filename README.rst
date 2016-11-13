@@ -97,14 +97,14 @@ By contributing you agree to release the code under the license terms listed bel
 
 Contributors
 ============
-Fredrik Håård
-Jan Willems
-Stephen Paulger
-Andy Tang
-Thomas Röggla
-Ardo Illaste
-Ken Cochrane
-Simon Williams
+* Fredrik Håård
+* Jan Willems
+* Stephen Paulger
+* Andy Tang
+* Thomas Röggla
+* Ardo Illaste
+* Ken Cochrane
+* Simon Williams
 
 License
 =======
