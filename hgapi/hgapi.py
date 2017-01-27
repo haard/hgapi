@@ -88,7 +88,7 @@ class Repo(object):
         proc = Popen(cmd,
                      stdout=PIPE, stderr=PIPE, env=env)
 
-        out, err = [x.decode("utf-8") for x in proc.communicate()]
+        out, err = [x.decode("utf-8", "replace") for x in proc.communicate()]
 
         if proc.returncode:
             cmd = " ".join(cmd)
