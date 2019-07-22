@@ -85,7 +85,7 @@ class TestHgAPI(unittest.TestCase):
             out.write("more stuff")
         # commit and check that changes have been made
         with tempfile.NamedTemporaryFile() as commit_file:
-            commit_file.write("modifying")
+            commit_file.write(b"modifying")
             commit_file.flush()
             self.repo.hg_commit(
                                 None, user="test",
